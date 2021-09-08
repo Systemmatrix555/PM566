@@ -1,0 +1,83 @@
+---
+title: 'Lab 01: Hello R'
+author: "Chris Hanson"
+date: "9/06/2021"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    toc_float: yes
+    fig_height: 7
+    highlight: espresso
+    theme: sandstone
+---
+Tuesday night desktop edit
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r include = FALSE}
+library(tidyverse)
+library(datasauRus)
+```
+
+
+## Exercise 1
+
+```{r echo = FALSE}
+datasaurus_dozen %>%
+  count(dataset)
+```
+The datasaurus_dozen file has 1846 rows and 3 columns. Each column is a variable, and these 3 variables are dataset, the x value, and the y value.
+
+## Exercise 2
+
+```{r echo = FALSE}
+dino_data <- datasaurus_dozen %>%
+  filter(dataset == "dino")
+ggplot(data = dino_data, mapping = aes(x = x, y = y)) +
+  geom_point()
+dino_data %>%
+  summarize(r = cor(x, y))
+```
+
+## Exercise 3
+
+```{r echo = FALSE}
+star_data <- datasaurus_dozen %>%
+  filter(dataset == "star")
+ggplot(data = star_data, mapping = aes(x = x, y = y)) +
+  geom_point()
+star_data %>%
+  summarize(r = cor(x, y))
+
+```
+
+## Exercise 4
+
+```{r echo = FALSE}
+circle_data <- datasaurus_dozen %>%
+  filter(dataset == "circle")
+ggplot(data = circle_data, mapping = aes(x = x, y = y)) +
+  geom_point()
+circle_data %>%
+  summarize(r = cor(x, y))
+
+```
+
+## Exercise 5
+
+```{r echo=FALSE, fig.height=15, fig.width=10}
+ggplot(datasaurus_dozen, aes(x = x, y = y, color = dataset))+
+  geom_point()+
+  facet_wrap(~ dataset, ncol = 3) +
+  theme(legend.position = "none")
+
+datasaurus_dozen %>%
+  group_by(dataset) %>%
+  summarize(r = cor(x, y))
+
+```
