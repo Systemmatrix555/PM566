@@ -13,6 +13,7 @@ output:
     theme: sandstone
 ---
 Tuesday night desktop edit #2
+Laptop edit.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
