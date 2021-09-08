@@ -12,8 +12,6 @@ output:
     highlight: espresso
     theme: sandstone
 ---
-Tuesday night desktop edit #2
-Laptop edit JUST NOW
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
