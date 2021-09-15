@@ -91,10 +91,4 @@ Put the more numerous variable in the columns because it's easier to read a tall
 
 # 3.6 Geometric objects
 
-WORDS
-<<<<<<< HEAD
-Just good work here.
-||||||| 8f14c62
-=======
-PLEASE GOD
->>>>>>> 8a40323fffd86d01f94c78c858c52dcd5dbcda0f
+please god
