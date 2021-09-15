@@ -1,0 +1,94 @@
+---
+title: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+
+```{r, include=FALSE}
+mpg <- ggplot2::mpg
+```
+
+# R for Data Science Chapter 3: Data visualization
+
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
+```
+## 3.5.1 Exercises
+
+## 1. 
+I suppose you can't facet on a continuous variable, although met doesn't seem to have any continuous variables.
+
+## 2.
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = drv, y = cyl))
+```
+
+The empty cells mean that there are no data points that fit both the x and y criteria. Those are the empty nodes in the graph above.
+
+## 3. 
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+```
+
+This is a plot of engine size in liters vs highway mileage, broken up between 4wd, frontwd, and rearwd. Drive options are stacked vertically (the first argument of facet_grid).
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+```
+
+This is a plot of engine size vs highway mileage, broken up based on number of car cylinders, which are stacked horizontally (as it's the second argument of facet_grid). The period means there is no particular argument there, leave it blank.
+
+## 4.
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+
+```
+
+The advantages of using faceting vs color aesthetic is that you can see each plot individually, considering the shape of the cluster. The advantage of color aesthetic is that you can better compare each facet against each other and which is more extreme. With a larger dataset, having all facets on the same plot would likely become more hectic.
+
+## 5. 
+nrow sets the number of rows and ncol sets the number of columns. To control the layout of the individual panels, you can also change their scale (scales), or their horizontal/vertical direction (dir).
+
+## 6. 
+Put the more numerous variable in the columns because it's easier to read a tall chart than a wide one.
+
+# 3.6 Geometric objects
+
+
