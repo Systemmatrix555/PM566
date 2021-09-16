@@ -162,5 +162,33 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
   geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
 ```
 
+## 3.6.1 Exercises
 
+## 1. 
+* Line chart:
+* Box plot:
+* Histogram: 
+* Area chart:
+
+## 2.
+
+
+
+## 3.
+
+
+
+## 4.
+
+
+
+## 5.
+
+
+
+## 6.
+
+
+
+# 3.7 Statistical transformations
 
