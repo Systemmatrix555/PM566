@@ -192,3 +192,11 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 
 # 3.7 Statistical transformations
 
+Every geom has a default stat, and every stat has a default geom. So, using geom_bar and stat_count creates the same chart:
+
+```{r}
+ggplot(data = diamonds) + 
+  stat_count(mapping = aes(x = cut))
+```
+
+We can override the default stat of a geom. 
