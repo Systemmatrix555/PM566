@@ -71,7 +71,13 @@ While the Max values of PM 2.5 in each of these data sets is extremely high, the
 ```{r combine and clean data}
 # Combine the two years of data into one data frame.
 pm <- rbind(pm2004, pm2019)
+
 # Use the Date variable to create a new column for year, which will serve as an identifier.
+dates <- pm$date
+dates2 <- as.POSIXct(dates, format = "%m/%d/%Y")
+dates3 <- format(dates2, format="%Y") 
+
+pm <-  mutate(pm, year = dates3)
 
 # Change the names of the key variables so that they are easier to refer to in your code.
 
