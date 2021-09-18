@@ -177,6 +177,56 @@ pre code {
 </div>
 </div>
 </div>
+<div id="prepare-the-data" class="section level2">
+<h2>2. Prepare the data</h2>
+<pre class="r"><code># Remove temperatures less than -17C
+met &lt;- met[temp &gt;= -17]
+
+# Make sure there are no missing data in the key variables coded as 9999, 999, etc
+# temp, rh, wind.sp, vis.dist, dew.point, lat, lon, and elev
+met[, range((temp))]</code></pre>
+<pre><code>## [1] -17  56</code></pre>
+<pre class="r"><code>met[, range((rh))]</code></pre>
+<pre><code>## [1] NA NA</code></pre>
+<pre class="r"><code>met[, range((wind.sp))]</code></pre>
+<pre><code>## [1] NA NA</code></pre>
+<pre class="r"><code>met[, range((vis.dist))]</code></pre>
+<pre><code>## [1] NA NA</code></pre>
+<pre class="r"><code>met[, range((dew.point))]</code></pre>
+<pre><code>## [1] NA NA</code></pre>
+<pre class="r"><code>met[, range((lat))]</code></pre>
+<pre><code>## [1] 24.550 48.941</code></pre>
+<pre class="r"><code>met[, range((lon))]</code></pre>
+<pre><code>## [1] -124.290  -68.313</code></pre>
+<pre class="r"><code>met[, range((elev))]</code></pre>
+<pre><code>## [1]  -13 9999</code></pre>
+<pre class="r"><code>met[elev == 999.0, elev :=NA]
+
+# Generate a date variable using the functions as.Date() (hint: You will need the following to create a date paste(year, month, day, sep = &quot;-&quot;)).
+met[, ymd := as.Date(paste(year, month, day, sep = &quot;-&quot;))]
+
+# Using the data.table::week function, keep the observations of the first week of the month.
+met[, table(week(ymd))]</code></pre>
+<pre><code>## 
+##     31     32     33     34     35 
+## 297260 521605 527924 523847 446576</code></pre>
+<pre class="r"><code>met &lt;- met[ week(ymd) == 31]
+
+# Compute the mean by station of the variables temp, rh, wind.sp, vis.dist, dew.point, lat, lon, and elev.
+met_avg = met[, .(
+  temp = mean(temp, na.rm = TRUE),
+  rh = mean(rh, na.rm = TRUE),
+  wind.sp = mean(wind.sp, na.rm = TRUE),
+  vis.dist = mean(vis.dist, na.rm = TRUE),
+  dew.point = mean(dew.point, na.rm = TRUE),
+  lat = mean(lat, na.rm = TRUE),
+  lon = mean(lon, na.rm = TRUE),
+  elev = mean(elev, na.rm = TRUE), USAFID
+), by = &quot;USAFID&quot;]
+
+# Create a region variable for NW, SW, NE, SE based on lon = -98.00 and lat = 39.71 degrees
+# Create a categorical variable for elevation as in the lecture slides</code></pre>
+</div>
 
 
 
