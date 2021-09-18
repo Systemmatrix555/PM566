@@ -1,0 +1,120 @@
+---
+title: "PM 566 Lab 4"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Chris Hanson
+### September 17, 2021
+
+
+#### The objective of the lab is to examine the association between weekly average dew point temperature and wind speed in four regions of the US and by elevation.
+
+```{r packages, include = FALSE, cache=TRUE}
+library(data.table)
+library(tidyverse)
+```
+
+
+```{r include = FALSE, cache=TRUE}
+if (!file.exists("met_all.gz"))
+  download.file(
+    url = "https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz",
+    destfile = "met_all.gz",
+    method   = "libcurl",
+    timeout  = 60
+    )
+met <- data.table::fread("met_all.gz")
+```
+## 2. Prepare the data
+
+```{r data-prep}
+# Remove temperatures less than -17C
+met <- met[temp >= -17]
+
+# Make sure there are no missing data in the key variables coded as 9999, 999, etc
+# temp, rh, wind.sp, vis.dist, dew.point, lat, lon, and elev
+met[, range((temp))]
+met[, range((rh))]
+met[, range((wind.sp))]
+met[, range((vis.dist))]
+met[, range((dew.point))]
+met[, range((lat))]
+met[, range((lon))]
+met[, range((elev))]
+
+met[elev == 999.0, elev :=NA]
+
+# Generate a date variable using the functions as.Date() (hint: You will need the following to create a date paste(year, month, day, sep = "-")).
+met[, ymd := as.Date(paste(year, month, day, sep = "-"))]
+
+# Using the data.table::week function, keep the observations of the first week of the month.
+met[, table(week(ymd))]
+met <- met[ week(ymd) == 31]
+
+# Compute the mean by station of the variables temp, rh, wind.sp, vis.dist, dew.point, lat, lon, and elev.
+met_avg = met[, .(
+  temp = mean(temp, na.rm = TRUE),
+  rh = mean(rh, na.rm = TRUE),
+  wind.sp = mean(wind.sp, na.rm = TRUE),
+  vis.dist = mean(vis.dist, na.rm = TRUE),
+  dew.point = mean(dew.point, na.rm = TRUE),
+  lat = mean(lat, na.rm = TRUE),
+  lon = mean(lon, na.rm = TRUE),
+  elev = mean(elev, na.rm = TRUE), USAFID
+), by = "USAFID"]
+
+# Create a region variable for NW, SW, NE, SE based on lon = -98.00 and lat = 39.71 degrees
+met_avg[lat >= 39.71 & lon <= -98, region := "Northwest"]
+met_avg[lat < 39.71 & lon <= -98, region := "Southwest"]
+met_avg[lat >= 39.71 & lon > -98, region := "Northeast"]
+met_avg[lat < 39.71 & lon > -98, region := "Southeast"]
+
+
+# Create a categorical variable for elevation as in the lecture slides
+met_avg[, elev_cat := fifelse(elev > 252, "high", "low")]
+
+# Deleting extra column
+
+met_avg <- met_avg[, -1]
+
+```
+
+This is my attmept at replicating his in class code, but I couldn't copy it in time
+```{r}
+ggplot(met_avg)
+```
+
+The  below is wrong, see how he did it in class.
+```{r }
+ggplot(data = met_avg) + 
+  geom_violin(mapping = aes(x = 1, y = wind.sp))
+  facet_grid(~region)
+```
+## 5.
+
+
+## 6. 
+
+```{r plot-stat_summ}
+ggplot(met_avg[!is.na(wind.sp) &  !is.na(dew.point)]) +
+  mapping = aes(x = region y = wind.sp)) +
+  stat_summary(fun.data = "mean_sdl") +
+  ## UNFINISHED
+  
+```
+
+## 7. 
+
+```{r leaflet}
+library(leaflet)
+
+temp.pal <- colorNumeric(c('darkgreen', 'goldenrod', 'brown'),
+                         domain=)
+
+```
+
+

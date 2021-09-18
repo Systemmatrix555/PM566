@@ -1,0 +1,16 @@
+---
+title: "pm566week4lecture"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+twelve <- 12
+```
+
+ 
+ 
+ 
+ 
