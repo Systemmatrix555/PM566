@@ -13,10 +13,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ### In this assignment I am given the task of determining whether daily concentration of PM2.5 has decreased in California in the last 15 years. To do this I am using data provided by the U.S. EPA.
 <br>
 <br>
-```{r, cache = TRUE, results = FALSE}
+```{r, results = FALSE}
 # Load libraries
 library(tidyverse)
 library(data.table)
+library(janitor)
 
 ```
 
@@ -25,7 +26,9 @@ library(data.table)
 ```{r load and check data}
 # Read in the data using data.table().
 pm2004 <- data.table::fread("ad_viz_plotval_data_2004.csv")
+pm2004 <- clean_names(pm2004)
 pm2019 <- data.table::fread("ad_viz_plotval_data_2019.csv")
+pm2019 <- clean_names(pm2019)
 # Check dimensions
 paste("The 2004 dataset has", dim(pm2004)[1], "observations and", dim(pm2004)[2], "variables.")
 paste("The 2019 dataset has", dim(pm2019)[1], "observations and", dim(pm2019)[2], "variables.")
@@ -45,8 +48,32 @@ paste(colnames(pm2004))
 sapply(pm2004, typeof)
 
 # Check for issues in key variables:
-str(pm2004)
+str(pm2004) # General readout
+summary(pm2004) #Summary statistics
+summary(pm2004$daily_mean_pm2_5_concentration) #Key variable
+mean(is.na(pm2004$daily_mean_pm2_5_concentration)) #No missing values
+hist(pm2004$daily_mean_pm2_5_concentration, breaks = 100, xlim=c(0,100)) #Check for outliers
+
+str(pm2019) # General readout
+summary(pm2019) #Summary statistics
+summary(pm2019$daily_mean_pm2_5_concentration) #Key variable
+mean(is.na(pm2019$daily_mean_pm2_5_concentration)) #No missing values
+hist(pm2019$daily_mean_pm2_5_concentration, breaks = 100, xlim=c(0,100)) #Check for outliers
 
 ```
 
 Summary of findings: 
+While the Max values of PM 2.5 in each of these data sets is extremely high, they don't seem to be errors - just extreme events.
+
+
+**Problem 2.** _Combine the two years of data into one data frame. Use the Date variable to create a new column for year, which will serve as an identifier. Change the names of the key variables so that they are easier to refer to in your code._
+
+```{r combine and clean data}
+# Combine the two years of data into one data frame.
+pm <- rbind(pm2004, pm2019)
+# Use the Date variable to create a new column for year, which will serve as an identifier.
+
+# Change the names of the key variables so that they are easier to refer to in your code.
+
+```
+
