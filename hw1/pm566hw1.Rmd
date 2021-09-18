@@ -1,5 +1,5 @@
 ---
-title: "pm566hw1"
+title: "PM 566 Assignment 1"
 output: html_document
 ---
 
@@ -7,22 +7,46 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+# Chris Hanson
+## September 24, 2021
+#  
+### In this assignment I am given the task of determining whether daily concentration of PM2.5 has decreased in California in the last 15 years. To do this I am using data provided by the U.S. EPA.
+<br>
+<br>
+```{r, cache = TRUE, results = FALSE}
+# Load libraries
+library(tidyverse)
+library(data.table)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+**Problem 1.** _Read in the data. Check dimensions, headers, footers, variable names, and variable types. Check for any data issues, particularly in the key variables. Summarize all findings._
+```{r load and check data}
+# Read in the data using data.table().
+pm2004 <- data.table::fread("ad_viz_plotval_data_2004.csv")
+pm2019 <- data.table::fread("ad_viz_plotval_data_2019.csv")
+# Check dimensions
+paste("The 2004 dataset has", dim(pm2004)[1], "observations and", dim(pm2004)[2], "variables.")
+paste("The 2019 dataset has", dim(pm2019)[1], "observations and", dim(pm2019)[2], "variables.")
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+# Check headers
+head(pm2004)
+head(pm2019)
+
+# Check footers
+tail(pm2004)
+tail(pm2019)
+
+# Check variable names
+paste(colnames(pm2004))
+
+# Check variable types
+sapply(pm2004, typeof)
+
+# Check for issues in key variables:
+str(pm2004)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Summary of findings: 
