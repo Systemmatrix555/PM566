@@ -77,7 +77,7 @@ dates <- pm$date
 dates2 <- as.POSIXct(dates, format = "%m/%d/%Y")
 dates3 <- format(dates2, format="%Y") 
 
-pm <-  mutate(pm, year = dates3)
+pm <-  mutate(pm, year = dates3) #New column "year" added
 
 # Change the names of the key variables so that they are easier to refer to in your code.
 
