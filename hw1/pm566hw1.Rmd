@@ -13,11 +13,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ### In this assignment I am given the task of determining whether daily concentration of PM2.5 has decreased in California in the last 15 years. To do this I am using data provided by the U.S. EPA.
 <br>
 <br>
-```{r, results = FALSE}
+```{r, message = FALSE}
+rm(list = ls())
+
 # Load libraries
 library(tidyverse)
 library(data.table)
 library(janitor)
+library(leaflet)
 
 ```
 
@@ -80,6 +83,23 @@ dates3 <- format(dates2, format="%Y")
 pm <-  mutate(pm, year = dates3) #New column "year" added
 
 # Change the names of the key variables so that they are easier to refer to in your code.
+pm <- rename(pm, pm25 = daily_mean_pm2_5_concentration)
 
 ```
+
+**Problem 3.** _Create a basic map in leaflet() that shows the locations of the sites (make sure to use different colors for each year). Summarize the spatial distribution of the monitoring sites._
+
+```{r}
+# Create a basic map in leaflet() that shows the locations of the sites (make sure to use different colors for each year).
+pal <- colorNumeric(palette = "RdYlBu", domain=c(2004, 2019))
+
+leaflet(pm) %>%
+  addProviderTiles('OpenStreetMap') %>% 
+  addCircles(lat=~site_latitude,lng=~site_longitude, color=pal(pm$year), opacity=1, fillOpacity=1, radius=50)
+  #addLegend('bottomleft', pal=pal, values=pm$year,
+          #title='Site Locations', opacity=1)
+
+```
+
+Summarize the spatial distribution of the monitoring sites: 
 
