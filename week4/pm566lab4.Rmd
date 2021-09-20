@@ -105,7 +105,7 @@ ggplot(data = met_avg, mapping = aes(y = dew.point, x = wind.sp, colour = region
   
 # Color points by region XX
 
-# Make sure to deal with NA category XX
+# Make sure to deal with NA category XX 
 
 # Fit a linear regression line by region
 
