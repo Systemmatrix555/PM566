@@ -13,11 +13,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### The objective of the lab is to examine the association between weekly average dew point temperature and wind speed in four regions of the US and by elevation.
 
-```{r packages, include = FALSE, cache=TRUE}
+```{r}
+rm(list = ls()) #so I don't delete the first column every time I run the whole script
+```
+
+
+```{r packages, include = FALSE}
 library(data.table)
 library(tidyverse)
 ```
 
+## 1. Read in the data
 
 ```{r, cache=TRUE}
 if (!file.exists("met_all.gz"))
@@ -31,7 +37,7 @@ met <- data.table::fread("met_all.gz")
 ```
 ## 2. Prepare the data
 
-```{r data-prep}
+```{r data-prep, cache = TRUE}
 # Remove temperatures less than -17C
 met <- met[temp >= -17]
 
@@ -64,7 +70,7 @@ met_avg = met[, .(
   dew.point = mean(dew.point, na.rm = TRUE),
   lat = mean(lat, na.rm = TRUE),
   lon = mean(lon, na.rm = TRUE),
-  elev = mean(elev, na.rm = TRUE), USAFID
+  elev = mean(elev, na.rm = TRUE)
 ), by = "USAFID"]
 
 # Create a region variable for NW, SW, NE, SE based on lon = -98.00 and lat = 39.71 degrees
@@ -77,8 +83,6 @@ met_avg[lat < 39.71 & lon > -98, region := "Southeast"]
 # Create a categorical variable for elevation as in the lecture slides
 met_avg[, elev_cat := fifelse(elev > 252, "high", "low")]
 
-# Deleting extra column
-met_avg <- met_avg[, -1]
 
 ```
 ## 3. Use geom_violin to examine the wind speed and dew point temperature by region
@@ -114,7 +118,7 @@ Description: I see that the Southeast has relatively higher dew points than othe
 
 ```{r}
 
-ggplot(data = met_avg, mapping = aes(x = elev_cat, fill = region)) +
+ggplot(data = met_avg[!is.na(elev_cat)], mapping = aes(x = elev_cat, fill = region)) +
   geom_bar(position = "dodge") + scale_fill_brewer(palette = "Paired") +
   ggtitle("Weather stations by elevation category") + xlab("Elevation Category") +
   ylab("Count")
@@ -135,15 +139,24 @@ Description: The Southeast has a lot of low elevation weather stations, and the 
 ## 6. Use stat_summary to examine mean dew point and wind speed by region with standard deviation error bars.
 
 ```{r plot-stat_summ}
-# Make sure to remove NA. Use fun.data="mean_sdl" in stat_summary. Add another layer of stats_summary but change the geom to "errorbar" (see the help). Describe the graph and what you observe. What is the dew point temperature? What is the wind speed?
+# Describe the graph and what you observe. What is the dew point temperature? What is the wind speed?
 
 ggplot(
-  met_avg[!is.na(wind.sp) & !is.na(dew.point)],
+  met_avg[!is.na(wind.sp)],
   mapping = aes(x = region, y = wind.sp)) +
   stat_summary(fun.data = "mean_sdl") +
   stat_summary(fun.data = "mean_sdl", geom = "errorbar")
+
+ggplot(
+  met_avg[!is.na(dew.point)],
+  mapping = aes(x = region, y = dew.point)) +
+  stat_summary(fun.data = "mean_sdl") +
+  stat_summary(fun.data = "mean_sdl", geom = "errorbar")
   
+
 ```
+Description: The NW and SW have higher wind speeds, on average. The spread is pretty consistent across regions. The NW and SW have a greater spread of dew points than the NE and SE, which are also both on average higher.
+
 
 ## 7. Make a map showing the spatial trend in relative h in the US
 
@@ -158,20 +171,24 @@ leaflet(met_avg) %>%
   addProviderTiles('CartoDB.Positron') %>%
   addCircles(
     lat = ~lat, lng=~lon,
-                                                  # HERE IS OUR PAL!
+                                            
     label = ~paste0(round(rh,2), ' rh'), color = ~ temp.pal(rh),
     opacity = 1, fillOpacity = 1, radius = 500
     ) %>%
-  # And a pretty legend
+
   addLegend('bottomleft', pal=temp.pal, values=met_avg$rh,
-          title='Temperature, C', opacity=1)
+          title='Relative Humidity', opacity=1)
 
 ```
+Description: The relative humidity increases as you go east primarily and south secondarily.
+
 
 ## 8. Use a ggplot extension
 
 ```{r}
-# Pick an extension (except cowplot) from (link) and make a plot of your choice using the met data (or met_avg). You might watn to try examples that come with the extension first (eg ggtech, gganimate, ggforce). 
+# Pick an extension (except cowplot) from (link) and make a plot of your choice using the met data (or met_avg). You might want to try examples that come with the extension first (eg ggtech, gganimate, ggforce). 
+
+## I'll return to this later if I get time.
 
 ```
 
