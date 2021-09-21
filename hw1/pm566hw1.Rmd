@@ -21,11 +21,12 @@ library(tidyverse)
 library(data.table)
 library(janitor)
 library(leaflet)
+library(ggplot2)
 
 ```
 
 
-**Problem 1.** _Read in the data. Check dimensions, headers, footers, variable names, and variable types. Check for any data issues, particularly in the key variables. Summarize all findings._
+### **Problem 1.** _Read in the data. Check dimensions, headers, footers, variable names, and variable types. Check for any data issues, particularly in the key variables. Summarize all findings._
 ```{r load and check data}
 # Read in the data using data.table().
 pm2004 <- data.table::fread("ad_viz_plotval_data_2004.csv")
@@ -69,7 +70,7 @@ Summary of findings:
 While the Max values of PM 2.5 in each of these data sets is extremely high, they don't seem to be errors - just extreme events.
 
 
-**Problem 2.** _Combine the two years of data into one data frame. Use the Date variable to create a new column for year, which will serve as an identifier. Change the names of the key variables so that they are easier to refer to in your code._
+### **Problem 2.** _Combine the two years of data into one data frame. Use the Date variable to create a new column for year, which will serve as an identifier. Change the names of the key variables so that they are easier to refer to in your code._
 
 ```{r combine and clean data}
 # Combine the two years of data into one data frame.
@@ -85,21 +86,35 @@ pm <-  mutate(pm, year = dates3) #New column "year" added
 # Change the names of the key variables so that they are easier to refer to in your code.
 pm <- rename(pm, pm25 = daily_mean_pm2_5_concentration)
 
+pm$year <- as.numeric(pm$year) #so that colorNumeric works, but can instead use colorFactor
+
 ```
 
-**Problem 3.** _Create a basic map in leaflet() that shows the locations of the sites (make sure to use different colors for each year). Summarize the spatial distribution of the monitoring sites._
+### **Problem 3.** _Create a basic map in leaflet() that shows the locations of the sites (make sure to use different colors for each year). Summarize the spatial distribution of the monitoring sites._
 
 ```{r}
 # Create a basic map in leaflet() that shows the locations of the sites (make sure to use different colors for each year).
-pal <- colorNumeric(palette = "RdYlBu", domain=c(2004, 2019))
+pal <- colorNumeric(palette = "RdYlBu", domain=c(2004, 2019)) 
+#colorNumeric doesn't work any more
 
 leaflet(pm) %>%
   addProviderTiles('OpenStreetMap') %>% 
-  addCircles(lat=~site_latitude,lng=~site_longitude, color=pal(pm$year), opacity=1, fillOpacity=1, radius=50)
-  #addLegend('bottomleft', pal=pal, values=pm$year,
+  addCircles(lat=~site_latitude,lng=~site_longitude, color=pal(pm$year), opacity=1, fillOpacity=1, radius=100)
+  #addLegend('bottomleft', pal=pal, values=~c(2004, 2019),
           #title='Site Locations', opacity=1)
+    #this legend is driving me crazy
 
 ```
 
-Summarize the spatial distribution of the monitoring sites: 
+Summarize the spatial distribution of the monitoring sites: ???
 
+### **Problem 4.** _Check for any missing or implausible values of PM2.5 in the combined dataset. Explore the proportions of each and provide a summary of any temporal patterns you see in these observations._
+
+```{r}
+
+```
+
+### **Problem 5.** _Explore the main question of interest at three different spatial levels. Create exploratory plots (e.g. boxplots, histograms, line plots) and summary statistics that best suit each level of data. Be sure to write up explanations of what you observe in these data._
+_State_
+_County_
+_Site in Los Angeles_
