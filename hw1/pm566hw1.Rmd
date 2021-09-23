@@ -127,8 +127,7 @@ summary(pm$pm25)
 # PM 2.5 has an extremely high Max value of 251, perhaps this is associated with the same wildfire event observed in the high AQI event discovered above:
 pm[which(grepl(251, pm$pm25)), daily_aqi_value]
 #The extreme PM2.5 and AQI values did indeed come from the same reading, suggesting they are both accurate readings of an extreme weather event.
-# ---------------------------------------------------------------------------
-# Explore the proportions of each and provide a summary of any temporal patterns you see in these observations.
+
 # at which site is this supposed wildfire happening?
 wildfire_site_index = which(grepl(251, pm$pm25))
 wildfire_site_id = pm[wildfire_site_index,site_id]
