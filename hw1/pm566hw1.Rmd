@@ -129,7 +129,23 @@ pm[which(grepl(251, pm$pm25)), daily_aqi_value]
 #The extreme PM2.5 and AQI values did indeed come from the same reading, suggesting they are both accurate readings of an extreme weather event.
 # ---------------------------------------------------------------------------
 # Explore the proportions of each and provide a summary of any temporal patterns you see in these observations.
+#what site is this supposed wildfire happening?
+wildfire_site_index = which(grepl(251, pm$pm25))
+wildfire_site_id = pm[wildfire_site_index,site_id]
+#what year?
+wildfire_year = pm[wildfire_site_index,year]
+#let's plot PM2.5 at that site to get the story
+pmfire <- filter(pm, site_id == wildfire_site_id, year == wildfire_year)
+ggplot(data = pmfire, aes(x=date, y=pm25)) +
+  geom_point()
+# that graph pretty clearly tells the story of a wildfire.
 
+ggplot(data = pmfire, aes(x=date, y=daily_aqi_value)) +
+  geom_point()
+#the daily aqi value confirms the story.
+
+
+## Let's see if the sites with the highest average PM2.5 sites seem plausible...
 # calc ave PM2.5 by site
 pm_ave <- pm %>% group_by(site_id) %>% summarize(mean25 = mean(pm25))
 # find the highest average pm2.5 value
@@ -141,9 +157,15 @@ high_site = pm_ave$site_id[high_site_index]
 #let's graph pm25 at this site in 2004
 pmhigh_2004 <- filter(pm, site_id == high_site, year == 2004)
 ggplot(data = pmhigh_2004, aes(x=date, y=pm25)) +
-  geom_line()
-
-
+  geom_point()
+#I guess this wasn't very revealing, let's try the second highest value.
+next_highest = max( pm_ave$mean25[pm_ave$mean25!=max(pm_ave$mean25)])
+nexthighest_index = which(pm_ave$mean25 %in% next_highest)
+nexthighest_site = pm_ave$site_id[nexthighest_index]
+pmnexthigh_2004 <- filter(pm, site_id == nexthighest_site, year == 2004)
+ggplot(data = pmnexthigh_2004, aes(x=date, y=pm25)) +
+  geom_point()
+# This was done to reveal if there were temporal patterns in the data set. While these high points are extreme, they are not unbelievable - but they don't suggest a wildfire like the previous graphs do.
 ```
 
 ### **Problem 5.** _Explore the main question of interest at three different spatial levels. Create exploratory plots (e.g. boxplots, histograms, line plots) and summary statistics that best suit each level of data. Be sure to write up explanations of what you observe in these data._
