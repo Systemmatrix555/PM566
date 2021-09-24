@@ -171,3 +171,18 @@ ggplot(data = pmnexthigh_2004, aes(x=date, y=pm25)) +
 _State_
 _County_
 _Site in Los Angeles_
+
+```{r}
+# State
+# qplot(year, log2(pm$pm25), data=pm, geom = 'boxplot') #boxplot
+
+ggplot(data = pm, aes(x = year, y=pm25)) +
+  geom_boxplot()
+
+# County
+
+# Site in Los Angeles
+
+
+```
+
