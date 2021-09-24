@@ -130,4 +130,55 @@ station_averages[, eudist := sqrt(
 )]
 ```
 
+## Question 3. For each state, identify what is the station that is closest to the mid-point of the state. Combining these with the stations you identified in the previous question, use leaflet() to visualize all ~100 points in the same figure, applying different colors for those identified in this question.
+
+```{r}
+
+```
+
+## Question 4. 
+Using the quantile() function, generate a summary table that shows the number of states included, average temperature, wind-speed, and atmospheric pressure by the variable “average temperature level,” which you’ll need to create.
+Start by computing the states’ average temperature. Use that measurement to classify them according to the following criteria:
+
+low: temp < 20
+Mid: temp >= 20 and temp < 25
+High: temp >= 25
+Once you are done with that, you can compute the following:
+
+Number of entries (records),
+Number of NA entries,
+Number of stations,
+Number of states included, and
+Mean temperature, wind-speed, and atmospheric pressure.
+All by the levels described before.
+
+```{r}
+#Going back to the met data set.
+met[, state_temp := mean(temp, na.rm = TRUE), by = STATE]
+met[, temp_cat := fifelse(
+  state_temp < 20, "low-temp",
+    fifelse(state_temp < 25, "mid-temp", "high-temp"))
+    ]
+
+```
+
+Let's make sure that we don't have NAs
+
+```{r}
+table(met$temp_cat, useNA = "always")
+
+
+```
+
+Now, let's summarize
+
+```{r}
+tab <- met[, .(
+  N_entries = .N,
+  N_stations = length(unique(USAFID))
+),
+    by = temp_cat]
+
+knitr::kable(tab)
+```
 
