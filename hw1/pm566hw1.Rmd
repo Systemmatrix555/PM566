@@ -207,8 +207,6 @@ ggplot(data = LA25, aes(y=pm25)) +
 with(LA25, tapply(pm25, year, summary))
 
 ##### Site in Los Angeles county
-#Finding an interesting site
-unique(sites$site_name)
 
 #Finding a site with data in both years:
 ##List of all unique site IDs in LA county
