@@ -22,6 +22,7 @@ library(data.table)
 library(janitor)
 library(leaflet)
 library(ggplot2)
+library(lubridate)
 
 ```
 
@@ -173,23 +174,54 @@ _County_
 _Site in Los Angeles_
 
 ```{r}
-# State
-# qplot(year, log2(pm$pm25), data=pm, geom = 'boxplot') #boxplot
+# (much of this code was inspired by Chapter 16 of Exploratory Data Analysis by Roger Peng)
 
-# set.seed(2021)
-# idx <- sample(nrow(pm), 1000)
-# pm2 <- pm[idx]
-# pm2 <- mutate(pm2, year_c = toString(year))
+##### State
 
+#Boxplots of 2004 and 2019 PM25 for the entire state
 ggplot(data = pm, aes(y=pm25)) +
   geom_boxplot()+
   facet_wrap(~year)+
   coord_cartesian(ylim = c(0,150))
 
-# County
+#Summary of 2004 and 2019 PM2.5 statistics for the entire state
+with(pm, tapply(pm25, year, summary))
 
-# Site in Los Angeles
+#It is clear from these box plots that 2019 has a lower mean, smaller spread, and fewer extreme outliers in PM2.5 than did 2004.
 
 
+#Investigate negative values
+filter(pm, year == "2004") %>% summarize(negative = mean(pm25 < 0, na.rm = TRUE))
+#A minuscule amount of the data is negative.
+
+##### County
+
+#Filtering down the entire data set to just one county
+LA25 <- filter(pm, county == "Los Angeles")
+
+#Box plot of PM2.5 in only Los Angeles County
+ggplot(data = LA25, aes(y=pm25)) +
+  geom_boxplot()+
+  facet_wrap(~year)
+
+with(LA25, tapply(pm25, year, summary))
+
+##### Site in Los Angeles county
+#Finding an interesting site
+unique(sites$site_name)
+
+#Finding a site with data in both years:
+##List of all unique site IDs in LA county
+sites <- filter(pm, county == "Los Angeles") %>% select(site_id, year) %>% unique
+site.year <- with(sites, split(site_id, year))
+both <- intersect(site.year[[1]], site.year[[2]])
+#Make a data frame with only sites from LA county in use in both years
+count <- mutate(pm) %>% filter(site_id %in% both)
+#Get a count of readings at each site to ensure the one we choose is interesting
+group_by(count, site_id) %>% summarize(n = n())
+#Let's use site_id 60371103 (North Main Street!)
+mainst25 <- filter(pm, site_id == 60371103) %>% select(date, year, pm25) %>% mutate(date2 = as.Date(date, format="%m/%d/%Y"), yday = yday(date2))
+
+qplot(yday, pm25, data=mainst25, facets = . ~ year, xlab = "Day of the year")
 ```
 
