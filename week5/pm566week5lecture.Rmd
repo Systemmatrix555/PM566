@@ -1,0 +1,156 @@
+---
+title: "PM 566 Lecture 5"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Chris Hanson
+## September 24, 2021
+
+```{r}
+library(data.table)
+library(dtplyr)
+library(dplyr)
+library(ggplot2)
+library(reticulate)
+
+```
+
+```{r}
+# Where are we getting the data from
+met_url <- "https://github.com/USCbiostats/data-science-data/raw/master/02_met/met_all.gz"
+# Downloading the data to a tempfile (so it is destroyed afterwards)
+# you can replace this with, for example, your own data:
+# tmp <- tempfile(fileext = ".gz")
+tmp <- "met.gz"
+# We should be downloading this, ONLY IF this was not downloaded already.
+# otherwise is just a waste of time.
+if (!file.exists(tmp)) {
+  download.file(
+    url      = met_url,
+    destfile = tmp,
+    # method   = "libcurl", timeout = 1000 (you may need this option)
+  )
+}
+dat <- fread(tmp)
+dat_ldt <- lazy_dt(dat, immutable = FALSE) #dtplyr
+```
+
+
+```{r}
+dat[, list(USAFID, lat, lon)] #using data.table
+# dat[, .(USAFID, lat, lon)]       # Alternative 1
+# dat[, c("USAFID", "lat", "lon")] # Alternative 2
+
+#using dtplyr
+dat_ldt %>% select(USAFID, lat, lon)
+
+```
+
+```{r, data filtering}
+# redo this real quick
+dat <- dat[,
+  .(USAFID, WBAN, year, month, day, hour, min, lat, lon, elev,
+    wind.sp, temp, atm.press)]
+dat_ldt <- lazy_dt(dat)
+
+```
+
+```{r}
+#What is this?
+
+myxor <- function(x, y) {
+  res <- logical(length(x))
+  for (i in 1:length(x)) {
+    res[i] <- (x & !y) | (!x & y)# do something with x[i] and y[i]
+  }
+  return(res)
+}
+
+```
+
+```{r}
+#with data.table
+dat[(day == 1) & (lat > 40) & ((elev < 500) | (elev > 1000))] %>%
+  nrow()
+
+#with dplyr
+dat_ldt %>%
+  filter(day == 1, lat > 40, (elev < 500) | (elev > 1000)) %>%
+  collect() %>% # Notice this line! This tells dplyr to go ahead and compute. Only for lazy data frame.
+  nrow()
+
+```
+
+```{python}
+import datatable as dt
+import pandas as pd
+dat = dt.fread("met.gz")
+dat.head(5)
+
+df = pd.read_csv('met.gz', compression='gzip')
+
+dat[(dt.f.day == 1) & (dt.f.lat > 40) & ((dt.f.elev < 500) | (dt.f.elev > 1000)), :].nrows
+#I think we loaded dat in python earlier but I haven't done it yet...
+
+```
+How many records have a temperature within 18 and 25?
+
+Some records have missings. Count how many records have temp as NA?
+
+Following the previous question, plot a sample of 1,000 of (lat, lon) of the stations with temp as NA and those with data.
+```{r}
+dat[(temp > 18 & temp < 25)] %>%
+  nrow() #correct
+#the rest of the answers are on his presentation somewhere...
+
+```
+
+
+```{r}
+stations <- fread("ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv")
+stations[, USAF := as.integer(USAF)]
+# Dealing with NAs and 999999
+stations[, USAF   := fifelse(USAF == 999999, NA_integer_, USAF)]
+stations[, CTRY   := fifelse(CTRY == "", NA_character_, CTRY)]
+stations[, STATE  := fifelse(STATE == "", NA_character_, STATE)]
+# Selecting the three relevant columns, and keeping unique records
+stations <- unique(stations[, list(USAF, CTRY, STATE)])
+# Dropping NAs
+stations <- stations[!is.na(USAF)]
+head(stations, n = 20)
+
+
+#---
+
+#Too many rows...
+
+stations[, n := 1:.N, by = .(USAF)]
+stations <- stations[n == 1,][, n := NULL]
+
+#--- finally merge
+merge(
+  # Data
+  x     = dat,      
+  y     = stations, 
+  # List of variables to match
+  by.x  = "USAFID",
+  by.y  = "USAF", 
+  # Which obs to keep?
+  all.x = TRUE,      
+  all.y = FALSE
+  ) %>% nrow()
+
+
+head(dat[, list(USAFID, WBAN, STATE)], n = 4)
+
+```
+
+```{r}
+?
+
+
+```
+
