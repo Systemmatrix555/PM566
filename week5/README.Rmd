@@ -7,7 +7,6 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-rm(list = ls())
 ```
 
 ```{r}
@@ -32,8 +31,6 @@ if (!file.exists(tmp)) {
     # method   = "libcurl", timeout = 1000 (you may need this option)
   )
 }
-dat <- fread(tmp)
-dat_ldt <- lazy_dt(dat, immutable = FALSE) #dtplyr
 ```
 
 
@@ -78,11 +75,24 @@ met <- merge(
 
 ```
 
-```{r}
-met[,.(
+## Question 1
+First, generate a representative version of each station. We will use the averages (or median). 
+
+```{r collapsing-by-station}
+station_averages <- met[,.(
   temp = mean(temp, na.rm = TRUE),
   wind.sp = mean(wind.sp, na.rm = TRUE),
   atm.press = mean(atm.press, na.rm = TRUE)
+), by = USAFID]
+```
+
+Now, we need to identify the quantiles per variable.
+
+```{r quantiles}
+station_averages[,.(
+  temp_50 = quantile(temp, probs = 0.5, na.rm = TRUE),
+  wind.sp_50 = quantile(wind.sp, probs = 0.5, na.rm = TRUE),
+  atm.press_50 = quantile(atm.press, probs = 0.5, na.rm = TRUE)
 )]
 ```
 
