@@ -85,7 +85,7 @@ met <- merge(
   )
 ```
 
-## Question 1
+## Question 1: What is the median station in terms of temperature, wind speed, and atmospheric pressure? Look for the three weather stations that best represent continental US using the quantile() function. Do these three coincide?
 
 First, generate a representative version of each station. We will use
 the averages (or median).
@@ -101,12 +101,50 @@ station_averages <- met[,.(
 Now, we need to identify the quantiles per variable.
 
 ``` r
-station_averages[,.(
+medians <- station_averages[,.(
   temp_50 = quantile(temp, probs = 0.5, na.rm = TRUE),
   wind.sp_50 = quantile(wind.sp, probs = 0.5, na.rm = TRUE),
   atm.press_50 = quantile(atm.press, probs = 0.5, na.rm = TRUE)
 )]
+
+medians
 ```
 
     ##     temp_50 wind.sp_50 atm.press_50
     ## 1: 23.68406   2.461838     1014.691
+
+Now we can find the stations that are the closest to these. (hint:
+‘which.min()’)
+
+``` r
+station_averages[, temp_dist := abs(temp - medians$temp_50)]
+median_temp_station <- station_averages[order(temp_dist)][1]
+median_temp_station
+```
+
+    ##    USAFID     temp  wind.sp atm.press   temp_dist
+    ## 1: 720458 23.68173 1.209682       NaN 0.002328907
+
+The station that is closest to the median is 720458.
+
+## Question 2: Just like the previous question, you are asked to identify what is the most representative, the median, station per state. This time, instead of looking at one variable at a time, look at the euclidean distance. If multiple stations show in the median, select the one located at the lowest latitude.
+
+``` r
+#We don't have state information in this station_averages dataset, so we'll merge it in from met.
+station_averages <- 
+  merge(x = station_averages, y=stations, by.x = "USAFID", by.y = "USAF", all.x = TRUE, all.y = FALSE)
+
+#Ok now we can go ahead and...
+station_averages[, temp_50 := quantile(temp, probs = 0.5, na.rm = TRUE), by = STATE]
+station_averages[, wind.sp_50 := quantile(wind.sp, probs = 0.5, na.rm = TRUE), by = STATE]
+station_averages[, atm.press_50 := quantile(atm.press, probs = 0.5, na.rm = TRUE), by = STATE]
+```
+
+Now, we compute the euclidean distance:
+$\\sqrt{\\sum\_i(x\_i - y\_i)^2}$
+
+``` r
+station_averages[, eudist := sqrt(
+  (temp - temp_50)^2 + (wind.sp - wind.sp_50)^2
+)]
+```
