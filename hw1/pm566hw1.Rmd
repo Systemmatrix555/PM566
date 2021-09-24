@@ -175,6 +175,7 @@ _Site in Los Angeles_
 ```{r}
 # State
 # qplot(year, log2(pm$pm25), data=pm, geom = 'boxplot') #boxplot
+pm <-  mutate(pm, year_c = toString(pm$year))
 
 ggplot(data = pm, aes(x = year, y=pm25)) +
   geom_boxplot()
