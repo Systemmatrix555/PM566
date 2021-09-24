@@ -181,8 +181,10 @@ _Site in Los Angeles_
 # pm2 <- pm[idx]
 # pm2 <- mutate(pm2, year_c = toString(year))
 
-ggplot(data = pm, aes(y=pm25, fill = year)) +
-  geom_boxplot()
+ggplot(data = pm, aes(y=pm25)) +
+  geom_boxplot()+
+  facet_wrap(~year)+
+  coord_cartesian(ylim = c(0,150))
 
 # County
 
