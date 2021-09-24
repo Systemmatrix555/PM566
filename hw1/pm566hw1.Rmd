@@ -175,9 +175,13 @@ _Site in Los Angeles_
 ```{r}
 # State
 # qplot(year, log2(pm$pm25), data=pm, geom = 'boxplot') #boxplot
-pm <-  mutate(pm, year_c = toString(pm$year))
 
-ggplot(data = pm, aes(x = year, y=pm25)) +
+# set.seed(2021)
+# idx <- sample(nrow(pm), 1000)
+# pm2 <- pm[idx]
+# pm2 <- mutate(pm2, year_c = toString(year))
+
+ggplot(data = pm, aes(y=pm25, fill = year)) +
   geom_boxplot()
 
 # County
