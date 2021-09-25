@@ -1,0 +1,289 @@
+---
+title: "PM 566 Assignment 1"
+author: "Chris Hanson"
+date: "September 24, 2021"
+output: github_document
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### In this assignment I am given the task of determining whether daily concentration of PM2.5 has decreased in California in the last 15 years. To do this I am using data provided by the U.S. EPA.
+<br>
+```{r, message = FALSE, echo = FALSE}
+rm(list = ls())
+
+# Load libraries
+library(tidyverse)
+library(data.table)
+library(janitor)
+library(leaflet)
+library(ggplot2)
+library(lubridate)
+
+```
+
+
+### **Problem 1.** _Read in the data. Check dimensions, headers, footers, variable names, and variable types. Check for any data issues, particularly in the key variables. Summarize all findings._
+
+I read in the data using data.table():
+
+```{r load and check data}
+pm2004 <- data.table::fread("ad_viz_plotval_data_2004.csv")
+pm2004 <- clean_names(pm2004)
+pm2019 <- data.table::fread("ad_viz_plotval_data_2019.csv")
+pm2019 <- clean_names(pm2019)
+
+
+```
+
+I then check dimensions, headers, footers, variable names, variable types, and summary statistics. I check for missing values, and I plot histograms to visually inspect the data.
+
+```{r}
+# Check dimensions
+paste("The 2004 dataset has", dim(pm2004)[1], "observations and", dim(pm2004)[2], "variables.")
+paste("The 2019 dataset has", dim(pm2019)[1], "observations and", dim(pm2019)[2], "variables.")
+
+# Check headers
+head(pm2004, n=3)
+head(pm2019, n=3)
+
+# Check footers
+tail(pm2004, n=3)
+tail(pm2019, n=3)
+
+# Check variable names
+paste(colnames(pm2004))
+
+# Check variable types
+sapply(pm2004, typeof)
+
+# Check for issues in key variables:
+str(pm2004) # General readout
+summary(pm2004) #Summary statistics
+summary(pm2004$daily_mean_pm2_5_concentration) #Key variable
+mean(is.na(pm2004$daily_mean_pm2_5_concentration)) #No missing values
+hist(pm2004$daily_mean_pm2_5_concentration, breaks = 100, main = "Histogram of all 2004 PM 2.5 data", xlab = "PM 2.5", xlim=c(0,100)) #2004 histogram
+
+str(pm2019) # General readout
+summary(pm2019) #Summary statistics
+summary(pm2019$daily_mean_pm2_5_concentration) #Key variable
+mean(is.na(pm2019$daily_mean_pm2_5_concentration)) #No missing values
+hist(pm2019$daily_mean_pm2_5_concentration, breaks = 100, main = "Histogram of all 2019 PM 2.5 data", xlab = "PM 2.5", xlim=c(0,100)) #2019 histogram
+```
+
+
+Summary of findings: 
+The 2019 data is significantly larger than the 2004 data.
+The max values of PM2.5 are very high compared to the mean. This will be investigated later to see whether it's an error or a natural occurrence. 
+
+<br>
+
+### **Problem 2.** _Combine the two years of data into one data frame. Use the Date variable to create a new column for year, which will serve as an identifier. Change the names of the key variables so that they are easier to refer to in your code._
+
+```{r combine and clean data}
+# Combine the two years of data into one data frame.
+pm <- rbind(pm2004, pm2019)
+
+# Use the Date variable to create a new column for year, which will serve as an identifier.
+dates <- pm$date
+dates2 <- as.POSIXct(dates, format = "%m/%d/%Y")
+dates3 <- format(dates2, format="%Y") 
+
+pm <-  mutate(pm, year = dates3) #New column "year" added
+
+# Change the names of the key variables so that they are easier to refer to in your code.
+pm <- rename(pm, pm25 = daily_mean_pm2_5_concentration)
+
+pm$year <- as.numeric(pm$year) #so that colorNumeric works
+
+```
+<br>
+
+### **Problem 3.** _Create a basic map in leaflet() that shows the locations of the sites (make sure to use different colors for each year). Summarize the spatial distribution of the monitoring sites._
+
+```{r}
+# Creating a basic map in leaflet() that shows the locations of the sites.
+pal <- colorNumeric(palette = "RdYlBu", domain=c(2004, 2019)) 
+
+leaflet(pm) %>%
+  addProviderTiles('OpenStreetMap') %>% 
+  addCircles(lat=~site_latitude,lng=~site_longitude, color=pal(pm$year), opacity=1, fillOpacity=1, radius=100)
+  #addLegend('bottomleft', pal=pal, values=~c(2004, 2019),
+          #title='Site Locations', opacity=1)
+
+```
+
+As seen in this map, both years have well distributed sites, but 2019 (blue) has considerably more sites. The sites tend to be concentrated along the coast, and by the large cities. This makes sense, as high PM2.5 values are associated with combustion of gasoline, so these areas require greater scrutiny.
+(I couldn't get the leaflet "addLegend" functionality to work)
+<br>
+
+### **Problem 4.** _Check for any missing or implausible values of PM2.5 in the combined data set. Explore the proportions of each and provide a summary of any temporal patterns you see in these observations._
+
+I check for NA values in the entire data set, and find which variable they belong to:
+```{r}
+mean(is.na(pm))
+mean(is.na(pm$cbsa_code))
+mean(is.na(pm$cbsa_code))/mean(is.na(pm))
+```
+0.36% of all data is missing, and 7.5% of the "cbsa_code" data is missing. As 7.5 is 21x greater than 0.36, and there are 21 variables, that means all missing data is from the "cbsa_code" column.
+
+Now I investigate extreme values in the data set to determine whether they're errors or natural outliers. I start with Daily AQI values:
+```{r}
+# Extreme values
+boxplot(pm$daily_aqi_value, main = "Boxplot of all Daily AQI Values")
+summary(pm$daily_aqi_value) 
+```
+Here we see an extreme outlier of AQI = 301. According to airnow.gov, an AQI (air quality index) of 301 or higher represents an emergency condition. This value is most associated with wildfires, which is not unreasonable. I now consider PM2.5 values:
+
+```{r}
+boxplot(pm$pm25, main = "Boxplot of all PM 2.5 Values")
+summary(pm$pm25) 
+```
+PM 2.5 has an extremely high Max value of 251, perhaps this is associated with the same event observed in the high AQI event discovered above?
+
+```{r}
+pm[which(grepl(251, pm$pm25)), daily_aqi_value]
+```
+The extreme PM2.5 and AQI values did indeed come from the same reading, suggesting they are both accurate readings of an extreme weather event. Investigating further:
+
+```{r}
+# at which site is this supposed wildfire happening?
+wildfire_site_index = which(grepl(251, pm$pm25))
+wildfire_site_id = pm[wildfire_site_index,site_id]
+#what year?
+wildfire_year = pm[wildfire_site_index,year]
+```
+
+Plotting PM2.5 at the site in question to see if it's insightful:
+
+```{r}
+pmfire <- filter(pm, site_id == wildfire_site_id, year == wildfire_year)
+ggplot(data = pmfire, aes(x=date, y=pm25)) +
+  geom_point() + ggtitle("PM 2.5 at site 60431001 in 2004") + theme(axis.text.x = element_blank())
+```
+
+That graph pretty clearly tells the story of a natural extreme event, likely a wildfire. Just to confirm, I plot the Daily AQI values:
+
+```{r}
+ggplot(data = pmfire, aes(x=date, y=daily_aqi_value)) +
+  geom_point() + ggtitle("Daily AQI values at site 60431001 in 2004") + theme(axis.text.x = element_blank())
+```
+
+The plot of Daily AQI values at this site confirms the story.
+
+Moving on, I check if the sites with the highest average PM2.5 values seem plausible:
+```{r}
+# calc ave PM2.5 by site
+pm_ave <- pm %>% group_by(site_id) %>% summarize(mean25 = mean(pm25))
+# max(pm_ave$mean25) # find the highest average pm2.5 value (unused)
+#which index of pm_ave has this max average value?
+high_site_index = which(pm_ave$mean25 %in% max(pm_ave$mean25))
+#what is the site id associated with this max value?
+high_site = pm_ave$site_id[high_site_index]
+#let's graph pm25 at this site in 2004
+pmhigh_2004 <- filter(pm, site_id == high_site, year == 2004)
+ggplot(data = pmhigh_2004, aes(x=date, y=pm25)) +
+  geom_point() + ggtitle("PM 2.5 at site with highest average PM 2.5") + theme(axis.text.x = element_blank())
+
+```
+
+This sparse data wasn't very revealing, let's try the second highest value:
+
+```{r}
+next_highest = max( pm_ave$mean25[pm_ave$mean25!=max(pm_ave$mean25)])
+nexthighest_index = which(pm_ave$mean25 %in% next_highest)
+nexthighest_site = pm_ave$site_id[nexthighest_index]
+pmnexthigh_2004 <- filter(pm, site_id == nexthighest_site, year == 2004)
+ggplot(data = pmnexthigh_2004, aes(x=date, y=pm25)) +
+  geom_point() + ggtitle("PM 2.5 at site with second highest average PM 2.5") + theme(axis.text.x = element_blank())
+
+```
+
+This was done to reveal whether the outliers in the data set followed a discernible pattern or were random. I found these high average PM2.5 sites to have credible data - but they don't suggest a wildfire like the previous investigation did.
+
+<br>
+
+### **Problem 5.** _Explore the main question of interest at three different spatial levels. Create exploratory plots (e.g. boxplots, histograms, line plots) and summary statistics that best suit each level of data. Be sure to write up explanations of what you observe in these data._
+
+Much of the code below was inspired by Chapter 16 of Exploratory Data Analysis by Roger Peng.
+
+<br>
+
+State-wide analysis:
+```{r}
+#Boxplots of 2004 and 2019 PM25 for the entire state
+ggplot(data = pm, aes(y=pm25)) +
+  geom_boxplot()+
+  facet_wrap(~year)+
+  coord_cartesian(ylim = c(0,150)) + 
+  ggtitle("PM 2.5 at all sites in California, per year")
+
+#Summary of 2004 and 2019 PM2.5 statistics for the entire state
+with(pm, tapply(pm25, year, summary))
+```
+
+It is clear from these box plots and statistical summaries that 2019 has a lower mean, smaller spread, and fewer extreme outliers in PM2.5 than did 2004.
+
+For the following county-wide analysis, I've chosen Los Angeles county, as it is my home:
+
+```{r}
+#Filtering down the entire data set to just one county
+LA25 <- filter(pm, county == "Los Angeles")
+
+#Box plot of PM2.5 in only Los Angeles County
+ggplot(data = LA25, aes(y=pm25)) +
+  geom_boxplot() +
+  facet_wrap(~year) +
+  ggtitle("PM 2.5 at all sites in Los Angeles County, per year")
+
+with(LA25, tapply(pm25, year, summary))
+```
+
+Now I will investigate a specific site within Los Angeles county. First, I find a site which was monitoring during both years. Then I count the total readings at each site, to ensure the site I choose has plenty of data.
+
+```{r}
+##Making a list of all unique site IDs in LA county
+sites <- filter(pm, county == "Los Angeles") %>% select(site_id, year) %>% unique
+site.year <- with(sites, split(site_id, year))
+both <- intersect(site.year[[1]], site.year[[2]])
+
+#Making a data frame with only sites from LA county in use in both years
+count <- mutate(pm) %>% filter(site_id %in% both)
+
+#Getting a count of readings at each site to ensure the one we choose is interesting
+group_by(count, site_id) %>% summarize(n = n())
+```
+
+I continue on my analysis of the site with the most readings: site_id 60371103 (North Main Street, my stomping grounds!)
+
+```{r}
+mainst25 <- filter(pm, site_id == 60371103) %>% select(date, year, pm25) %>% mutate(date2 = as.Date(date, format="%m/%d/%Y"), yday = yday(date2))
+
+#
+qplot(yday, pm25, data=mainst25, facets = . ~ year, main = "PM 2.5 on Main St. in Los Angeles, 2004 and 2019", xlab = "Day of the year")
+```
+
+
+This was a very illuminating visualization! It is clear how much PM 2.5 has dropped in this 15 year period. I feel confident breathing deep as I write this report.
+
+Now I will compare the average PM 2.5 value at each site in the state across the years. I will identify all of the sites which were monitoring both years. I will then calculate the mean of PM2.5 for each site in both years, and then I'll plot a line between the two values to easily see whether most sites dropped between the years.
+
+```{r}
+#Making a data frame with only the sites which were present at each year
+sites2 <- filter(pm) %>% select(site_id, year) %>% unique
+sites2.year <- with(sites2, split(site_id, year))
+both2 <- intersect(sites2.year[[1]], sites2.year[[2]])
+count2 <- mutate(pm) %>% filter(site_id %in% both2) #this is the final DF
+
+#calculate the mean of PM 2.5 for each site in both years
+mn <- group_by(count2, year, site_id) %>% summarize(pm25_mean = mean(pm25, na.rm = TRUE))
+
+#plot
+qplot(Change_over_years, pm25_mean, data = mutate(mn, Change_over_years = as.numeric(as.character(year))), color = factor(site_id), geom = c("point", "line"), main = "Average PM2.5 at each site between 2004-2019") + theme(legend.position="none")
+
+```
+
+It is clear that the vast majority of sites reduced their average PM2.5 value between the years of 2004 and 2019. 

@@ -3,6 +3,7 @@ title: "PM 566 Assignment 1"
 author: "Chris Hanson"
 date: "September 24, 2021"
 output: html_document
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
