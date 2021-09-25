@@ -112,12 +112,13 @@ pm$year <- as.numeric(pm$year) #so that colorNumeric works
 # Creating a basic map in leaflet() that shows the locations of the sites.
 pal <- colorNumeric(palette = "RdYlBu", domain=c(2004, 2019)) 
 
-leaflet(pm) %>%
+map <- leaflet(pm) %>%
   addProviderTiles('OpenStreetMap') %>% 
   addCircles(lat=~site_latitude,lng=~site_longitude, color=pal(pm$year), opacity=1, fillOpacity=1, radius=100)
   #addLegend('bottomleft', pal=pal, values=~c(2004, 2019),
           #title='Site Locations', opacity=1)
 
+map
 ```
 
 As seen in this map, both years have well distributed sites, but 2019 (blue) has considerably more sites. The sites tend to be concentrated along the coast, and by the large cities. This makes sense, as high PM2.5 values are associated with combustion of gasoline, so these areas require greater scrutiny.
