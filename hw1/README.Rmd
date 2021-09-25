@@ -2,7 +2,11 @@
 title: "PM 566 Assignment 1"
 author: "Chris Hanson"
 date: "September 24, 2021"
-output: html_document
+leafletmap: true
+output:
+github_document:
+html_document:
+  html_preview: false
 always_allow_html: true
 ---
 
