@@ -15,22 +15,8 @@ library(dtplyr)
 library(dplyr)
 ```
 
-```{r, cache = TRUE}
-# Where are we getting the data from
-met_url <- "https://github.com/USCbiostats/data-science-data/raw/master/02_met/met_all.gz"
-# Downloading the data to a tempfile (so it is destroyed afterwards)
-# you can replace this with, for example, your own data:
-# tmp <- tempfile(fileext = ".gz")
-tmp <- "met.gz"
-# We should be downloading this, ONLY IF this was not downloaded already.
-# otherwise is just a waste of time.
-if (!file.exists(tmp)) {
-  download.file(
-    url      = met_url,
-    destfile = tmp,
-    # method   = "libcurl", timeout = 1000 (you may need this option)
-  )
-}
+```{r}
+rm(list = ls())
 ```
 
 
@@ -52,10 +38,12 @@ stations[, USAF := as.integer(USAF)]
 stations[, USAF   := fifelse(USAF == 999999, NA_integer_, USAF)]
 stations[, CTRY   := fifelse(CTRY == "", NA_character_, CTRY)]
 stations[, STATE  := fifelse(STATE == "", NA_character_, STATE)]
-# Dealing with NAs and 999999
-stations[, USAF   := fifelse(USAF == 999999, NA_integer_, USAF)]
-stations[, CTRY   := fifelse(CTRY == "", NA_character_, CTRY)]
-stations[, STATE  := fifelse(STATE == "", NA_character_, STATE)]
+
+# Selecting the three relevant columns, and keeping unique records
+stations <- unique(stations[, list(USAF, CTRY, STATE)])
+
+# Dropping NAs
+stations <- stations[!is.na(USAF)]
 
 #removing duplicates
 stations[, n := 1:.N, by = .(USAF)]
@@ -80,6 +68,7 @@ met <- merge(
 First, generate a representative version of each station. We will use the averages (or median). 
 
 ```{r collapsing-by-station}
+#getting the average temp, wind speed, and atmospheric pressure of each station in met (by USAFID)
 station_averages <- met[,.(
   temp = mean(temp, na.rm = TRUE),
   wind.sp = mean(wind.sp, na.rm = TRUE),
@@ -87,9 +76,10 @@ station_averages <- met[,.(
 ), by = USAFID]
 ```
 
-Now, we need to identify the quantiles per variable.
+Now, we need to calculate the median per variable.
 
 ```{r quantiles}
+#using the station averages data set, find the median value using the quantile function.
 medians <- station_averages[,.(
   temp_50 = quantile(temp, probs = 0.5, na.rm = TRUE),
   wind.sp_50 = quantile(wind.sp, probs = 0.5, na.rm = TRUE),
@@ -102,33 +92,58 @@ medians
 Now we can find the stations that are the closest to these. (hint: 'which.min()')
 
 ```{r}
+#calculate which station is closest to the median temp value
 station_averages[, temp_dist := abs(temp - medians$temp_50)]
 median_temp_station <- station_averages[order(temp_dist)][1]
 median_temp_station
-```
-The station that is closest to the median is `r median_temp_station$USAFID`.
 
-## Question 2: Just like the previous question, you are asked to identify what is the most representative, the median, station per state. This time, instead of looking at one variable at a time, look at the euclidean distance. If multiple stations show in the median, select the one located at the lowest latitude.
+#calculate which station is closest to the median wind speed value
+station_averages[, wind.sp_dist := abs(wind.sp - medians$wind.sp_50)]
+median_wind.sp_station <- station_averages[order(wind.sp_dist)][1]
+median_wind.sp_station
+
+#calculate which station is closest to the median atmospheric pressure value
+station_averages[, atm.press_dist := abs(atm.press - medians$atm.press_50)]
+median_atm.press_station <- station_averages[order(atm.press_dist)][1]
+median_atm.press_station
+```
+The station that is closest to the temp median is `r median_temp_station$USAFID`.
+The station that is closest to the wind speed median is `r median_wind.sp_station$USAFID`.
+The station that is closest to the atmospheric pressure median is `r median_atm.press_station$USAFID`.
+
+## Question 2. What is the most representative (median) station per state? This time, instead of looking at one variable at a time, look at the euclidean distance. If multiple stations show in the median, select the one located at the lowest latitude.
 
 ```{r}
-
-#We don't have state information in this station_averages dataset, so we'll merge it in from met.
+#We don't have state information in this station_averages data set, so we'll merge it in from met.
 station_averages <- 
   merge(x = station_averages, y=stations, by.x = "USAFID", by.y = "USAF", all.x = TRUE, all.y = FALSE)
+```
 
-#Ok now we can go ahead and...
+```{r}
+#Calculating median values of weather data per state
 station_averages[, temp_50 := quantile(temp, probs = 0.5, na.rm = TRUE), by = STATE]
 station_averages[, wind.sp_50 := quantile(wind.sp, probs = 0.5, na.rm = TRUE), by = STATE]
 station_averages[, atm.press_50 := quantile(atm.press, probs = 0.5, na.rm = TRUE), by = STATE]
 ```
 
+
 Now, we compute the euclidean distance: $\sqrt{\sum_i(x_i - y_i)^2}$
 
 ```{r}
+#calculating the distance of each weather value to the state median value, then using this to find the euclidean distance to the value best representing the median of all 3. However, we're not including atmospheric distance because there are so many NA's.
 station_averages[, eudist := sqrt(
   (temp - temp_50)^2 + (wind.sp - wind.sp_50)^2
 )]
 ```
+
+```{r}
+#calculate the station closest to the true median of both wind speed and temp
+median_eudist_station <- station_averages[order(eudist)][1]
+median_eudist_station
+```
+
+The station that is closest to the shared median of wind speed and temperature is is `r median_eudist_station$USAFID`.
+
 
 ## Question 3. For each state, identify what is the station that is closest to the mid-point of the state. Combining these with the stations you identified in the previous question, use leaflet() to visualize all ~100 points in the same figure, applying different colors for those identified in this question.
 
