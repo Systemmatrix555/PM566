@@ -171,25 +171,27 @@ All by the levels described before.
 
 
 ```{r}
-#Calculating the mean temperature of each state using by = STATE
+#calculating the mean temperature of each state using by = STATE
 met[, state_temp := mean(temp, na.rm = TRUE), by = STATE]
+
 #categorizing the temperature of each state into low, mid, or high
 met[, temp_cat := fifelse(
   state_temp < 20, "low-temp",
     fifelse(state_temp < 25, "mid-temp", "high-temp"))
     ]
-
 ```
 
 Let's make sure that we don't have NAs
 
 ```{r}
+#making a table of the counts of each value, to ensure the count of NA is 0
 table(met$temp_cat, useNA = "always")
 ```
 
 Now, let's summarize
 
 ```{r}
+#creating a new matrix "tab" that has counts the number of each low, mid, and high READING as "N_entries" and also counts the number of each STATION as N_stations.
 tab <- met[, .(
   N_entries = .N,
   N_stations = length(unique(USAFID))
@@ -198,4 +200,9 @@ tab <- met[, .(
 
 knitr::kable(tab)
 ```
+
+
+STATUS: This question is not finished, and I need to figure out what's needed.
+
+
 
