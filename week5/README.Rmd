@@ -137,19 +137,28 @@ station_averages[, eudist := sqrt(
 ```
 
 ```{r}
-#calculate the station closest to the true median of both wind speed and temp
-median_eudist_station <- station_averages[order(eudist)][1]
-median_eudist_station
+#calculate the station closest to the true median of both wind speed and temp per state
+state_ordered <- station_averages[
+  with(station_averages, order(STATE, eudist))
+]
+state_median_stations <- station_averages[ , .SD[which.min(eudist)], by = STATE]
+state_med_stations <- state_median_stations[, .(USAFID, STATE)]
 ```
 
-The station that is closest to the shared median of wind speed and temperature is is `r median_eudist_station$USAFID`.
+The stations that are closest to the shared median of wind speed and temperature in each state are:
+```{r}
+knitr::kable(state_med_stations)
+```
+
 
 
 ## Question 3. For each state, identify what is the station that is closest to the mid-point of the state. Combining these with the stations you identified in the previous question, use leaflet() to visualize all ~100 points in the same figure, applying different colors for those identified in this question.
 
 ```{r}
+#Use leaflet() to visualize each state's midpoint station along with the stations from question 2.
 
 ```
+
 
 ## Question 4. 
 Using the quantile() function, generate a summary table that shows the number of states, average temperature, wind-speed, and atmospheric pressure by the variable “average temperature level,” which you’ll need to create.
@@ -159,15 +168,6 @@ Start by computing the states’ average temperature. Use that measurement to cl
 low: temp < 20
 Mid: temp >= 20 and temp < 25
 High: temp >= 25
-Once you are done with that, you can compute the following:
-
-Number of entries (records),
-Number of NA entries,
-Number of stations,
-Number of states included, and
-Mean temperature, wind-speed, and atmospheric pressure.
-All by the levels described before.
-
 
 
 ```{r}
@@ -181,20 +181,29 @@ met[, temp_cat := fifelse(
     ]
 ```
 
-Let's make sure that we don't have NAs
+Calculate the number of NA entries:
 
 ```{r}
 #making a table of the counts of each value, to ensure the count of NA is 0
 table(met$temp_cat, useNA = "always")
 ```
 
-Now, let's summarize
+Compute the following:
+
+Number of entries (records),
+Number of stations,
+Number of states included, and
+Mean temperature, wind-speed, and atmospheric pressure.
+All by the levels described before.
 
 ```{r}
-#creating a new matrix "tab" that has counts the number of each low, mid, and high READING as "N_entries" and also counts the number of each STATION as N_stations.
+#creating a new matrix "tab" that has counts of the number of each low, mid, and high temp READING as "N_entries" and also counts the number of each STATION as N_stations.
 tab <- met[, .(
   N_entries = .N,
-  N_stations = length(unique(USAFID))
+  N_stations = length(unique(USAFID)),
+  mean_temp = mean(temp, na.rm = TRUE),
+  wind.sp = mean(wind.sp, na.rm = TRUE),
+  atm.press = mean(atm.press, na.rm = TRUE)
 ),
     by = temp_cat]
 
@@ -202,7 +211,7 @@ knitr::kable(tab)
 ```
 
 
-STATUS: This question is not finished, and I need to figure out what's needed.
+
 
 
 
