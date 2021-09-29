@@ -21,7 +21,7 @@ library(leaflet)
 rm(list = ls())
 ```
 
-
+ 
 ```{r, cache = TRUE, message = FALSE}
 if (!file.exists("met_all.gz"))
   download.file(
