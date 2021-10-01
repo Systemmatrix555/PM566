@@ -1,0 +1,42 @@
+---
+title: "pm566week6lab"
+author: "Chris Hanson"
+date: "10/1/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(tidytext)
+
+```
+
+```{r}
+fn  <- "mtsamples.csv"
+
+if (!file.exists(fn))
+  download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/00_mtsamples/mtsamples.csv", destfile = fn)
+
+mtsamples <-  read.csv(fn)
+mtsamples <- as_tibble(mtsamples)
+
+```
+
+## Question 1. How are specialities distributed?
+
+```{r dist-of-specialities}
+specialies <- mtsamples %>%
+  count(medical_specialty)
+```
+
+There are `r nrow(specialties)` specialties. Let's take a look at the distribution:
+
+```{r}
+
+```
+
+
