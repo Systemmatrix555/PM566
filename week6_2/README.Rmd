@@ -2,7 +2,7 @@
 title: "pm566week6lab"
 author: "Chris Hanson"
 date: "10/1/2021"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -40,12 +40,34 @@ specialties %>%
 
 There are `r nrow(specialties)` specialties. Let's take a look at the distribution:
 
-```{r}
+```{r, cache = TRUE}
 ggplot(mtsamples, aes(x = medical_specialty)) +
   geom_histogram(stat = "count") +
   coord_flip()
+
+ggplot(specialties, aes(x = n, y = fct_reorder(medical_specialty, n))) +
+  geom_col()
 ```
 
 These are not evenly (uniformly) distributed.
 
+## Question 2. 
+
+```{r token-transcript, cache = TRUE}
+mtsamples %>%
+  unnest_tokens(output = word, input = transcription) %>%
+  count(word, sort = TRUE) %>%
+  top_n(20) %>%
+  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+    geom_col()
+
+```
+
+Let's remove all these stop words.
+
+## Question 3.
+
+```{r}
+
+```
 
