@@ -30,9 +30,6 @@ specialties %>%
   knitr::kable()
 ```
 
-    ## Warning in if (n > 0) {: the condition has length > 1 and only the first element
-    ## will be used
-
 | medical\_specialty            |    n |
 |:------------------------------|-----:|
 | Surgery                       | 1103 |
@@ -83,8 +80,6 @@ ggplot(mtsamples, aes(x = medical_specialty)) +
   geom_histogram(stat = "count") +
   coord_flip()
 ```
-
-    ## Warning: Ignoring unknown parameters: binwidth, bins, pad
 
 ![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
@@ -162,3 +157,82 @@ mtsamples %>%
 ![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 Some fun phrases have appeared.
+
+## Question 5.
+
+``` r
+# Don't pick "history"
+
+bigrams <- mtsamples %>%
+  unnest_ngrams(output = bigram, input = transcription, n = 2) %>%
+  separate(bigram, into = c("w1", "w2"), sep = " ") %>%
+  filter((w1 == "operation") | (w2 == "operation"))
+  
+bigrams %>%  
+  filter(w1 == "operation") %>%
+  select(w1, w2) %>%
+  count(w2, sort = TRUE)
+```
+
+    ## # A tibble: 94 x 2
+    ##    w2            n
+    ##    <chr>     <int>
+    ##  1 the         174
+    ##  2 performed   159
+    ##  3 1            46
+    ##  4 in           25
+    ##  5 right        22
+    ##  6 was          22
+    ##  7 after        20
+    ##  8 bilateral    18
+    ##  9 this         18
+    ## 10 and          16
+    ## # ... with 84 more rows
+
+``` r
+bigrams %>%  
+  filter(w2 == "operation") %>%
+  select(w1, w2) %>%
+  count(w1, sort = TRUE)
+```
+
+    ## # A tibble: 129 x 2
+    ##    w1           n
+    ##    <chr>    <int>
+    ##  1 of         226
+    ##  2 the        129
+    ##  3 for         73
+    ##  4 this        13
+    ##  5 re          12
+    ##  6 norwood      9
+    ##  7 same         9
+    ##  8 cancer       7
+    ##  9 mass         7
+    ## 10 aneurysm     6
+    ## # ... with 119 more rows
+
+Let’s filter out stop words and numbers.
+
+## Question 6.
+
+``` r
+bigrams %>%
+  filter(w1 == "operation") %>%
+  filter(!(w2 %in% stop_words$word) & !grepl("^[0-9]+$", w2)) %>%
+  count(w2, sort = TRUE)
+```
+
+    ## # A tibble: 63 x 2
+    ##    w2                      n
+    ##    <chr>               <int>
+    ##  1 performed             159
+    ##  2 bilateral              18
+    ##  3 left                   15
+    ##  4 excision               13
+    ##  5 procedure               9
+    ##  6 cystoscopy              8
+    ##  7 expected                8
+    ##  8 loss                    8
+    ##  9 phacoemulsification     8
+    ## 10 endoscopic              6
+    ## # ... with 53 more rows

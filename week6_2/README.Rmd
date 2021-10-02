@@ -6,7 +6,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 ```
 
 ```{r, cache = TRUE}
@@ -101,4 +101,36 @@ mtsamples %>%
 ```
 
 Some fun phrases have appeared.
+
+## Question 5.
+
+```{r, cache = TRUE, warning = FALSE}
+# Don't pick "history"
+
+bigrams <- mtsamples %>%
+  unnest_ngrams(output = bigram, input = transcription, n = 2) %>%
+  separate(bigram, into = c("w1", "w2"), sep = " ") %>%
+  filter((w1 == "operation") | (w2 == "operation"))
+  
+bigrams %>%  
+  filter(w1 == "operation") %>%
+  select(w1, w2) %>%
+  count(w2, sort = TRUE)
+
+bigrams %>%  
+  filter(w2 == "operation") %>%
+  select(w1, w2) %>%
+  count(w1, sort = TRUE)
+```
+
+Let's filter out stop words and numbers.
+
+## Question 6. 
+
+```{r, cache = TRUE}
+bigrams %>%
+  filter(w1 == "operation") %>%
+  filter(!(w2 %in% stop_words$word) & !grepl("^[0-9]+$", w2)) %>%
+  count(w2, sort = TRUE)
+```
 
