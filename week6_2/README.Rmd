@@ -77,4 +77,4 @@ mtsamples %>%
     geom_col()
 ```
 
-Looking better, but let's remove the numbers
+Looking better, but let's remove the numbers 
