@@ -29,14 +29,23 @@ mtsamples <- as_tibble(mtsamples)
 ## Question 1. How are specialities distributed?
 
 ```{r dist-of-specialities}
-specialies <- mtsamples %>%
+specialties <- mtsamples %>%
   count(medical_specialty)
+
+specialties %>%
+  arrange(desc(n)) %>%
+  top_n(n, 15) %>%
+  knitr::kable()
 ```
 
 There are `r nrow(specialties)` specialties. Let's take a look at the distribution:
 
 ```{r}
-
+ggplot(mtsamples, aes(x = medical_specialty)) +
+  geom_histogram(stat = "count") +
+  coord_flip()
 ```
+
+These are not evenly (uniformly) distributed.
 
 
