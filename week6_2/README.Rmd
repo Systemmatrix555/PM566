@@ -67,7 +67,14 @@ Let's remove all these stop words.
 
 ## Question 3.
 
-```{r}
-
+```{r token-transcript-wo-stop, cache = TRUE}
+mtsamples %>%
+  unnest_tokens(output = word, input = transcription) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  top_n(20) %>%
+  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+    geom_col()
 ```
 
+Looking better, but let's remove the numbers
