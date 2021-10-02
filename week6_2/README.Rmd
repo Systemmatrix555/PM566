@@ -9,13 +9,13 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, cache = TRUE}
 library(tidyverse)
 library(tidytext)
 
 ```
 
-```{r}
+```{r, cache = TRUE}
 fn  <- "mtsamples.csv"
 
 if (!file.exists(fn))
@@ -28,7 +28,7 @@ mtsamples <- as_tibble(mtsamples)
 
 ## Question 1. How are specialities distributed?
 
-```{r dist-of-specialities}
+```{r dist-of-specialities, cache = TRUE}
 specialties <- mtsamples %>%
   count(medical_specialty)
 
@@ -72,9 +72,33 @@ mtsamples %>%
   unnest_tokens(output = word, input = transcription) %>%
   count(word, sort = TRUE) %>%
   anti_join(stop_words, by = "word") %>%
+  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
   top_n(20) %>%
   ggplot(aes(x = n, y = fct_reorder(word, n))) +
     geom_col()
 ```
 
-Looking better, but let's remove the numbers 
+## Question 4. Tokenize into bi-grams and tri-grams.
+
+```{r, cache = TRUE}
+mtsamples %>%
+  unnest_ngrams(output = bigram, input = transcription, n = 2) %>%
+  count(bigram, sort = TRUE) %>%
+  top_n(20) %>%
+  ggplot(aes(x = n, y = fct_reorder(bigram, n))) +
+    geom_col()
+```
+
+Tri-grams:
+
+```{r, cache = TRUE}
+mtsamples %>%
+  unnest_ngrams(output = trigram, input = transcription, n = 3) %>%
+  count(trigram, sort = TRUE) %>%
+  top_n(20) %>%
+  ggplot(aes(x = n, y = fct_reorder(trigram, n))) +
+    geom_col()
+```
+
+Some fun phrases have appeared.
+

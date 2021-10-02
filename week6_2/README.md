@@ -5,20 +5,6 @@ Chris Hanson
 
 ``` r
 library(tidyverse)
-```
-
-    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
-
-    ## v ggplot2 3.3.5     v purrr   0.3.4
-    ## v tibble  3.1.4     v dplyr   1.0.7
-    ## v tidyr   1.1.3     v stringr 1.4.0
-    ## v readr   2.0.1     v forcats 0.5.1
-
-    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-``` r
 library(tidytext)
 ```
 
@@ -129,3 +115,50 @@ mtsamples %>%
 Let’s remove all these stop words.
 
 ## Question 3.
+
+``` r
+mtsamples %>%
+  unnest_tokens(output = word, input = transcription) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
+  top_n(20) %>%
+  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+    geom_col()
+```
+
+    ## Selecting by n
+
+![](README_files/figure-gfm/token-transcript-wo-stop-1.png)<!-- -->
+
+## Question 4. Tokenize into bi-grams and tri-grams.
+
+``` r
+mtsamples %>%
+  unnest_ngrams(output = bigram, input = transcription, n = 2) %>%
+  count(bigram, sort = TRUE) %>%
+  top_n(20) %>%
+  ggplot(aes(x = n, y = fct_reorder(bigram, n))) +
+    geom_col()
+```
+
+    ## Selecting by n
+
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+Tri-grams:
+
+``` r
+mtsamples %>%
+  unnest_ngrams(output = trigram, input = transcription, n = 3) %>%
+  count(trigram, sort = TRUE) %>%
+  top_n(20) %>%
+  ggplot(aes(x = n, y = fct_reorder(trigram, n))) +
+    geom_col()
+```
+
+    ## Selecting by n
+
+![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+Some fun phrases have appeared.
