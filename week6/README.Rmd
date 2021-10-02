@@ -28,7 +28,7 @@ mtsamples <- as_tibble(mtsamples)
 
 ```
 
-## Question 1. How are specialties distributed?
+## Question 1. How are specialties distributed? 
 
 ```{r dist-of-specialties, cache = TRUE}
 specialties <- mtsamples %>%
