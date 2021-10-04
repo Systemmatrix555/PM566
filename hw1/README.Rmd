@@ -2,7 +2,10 @@
 title: "PM 566 Assignment 1"
 author: "Chris Hanson"
 date: "September 24, 2021"
-output: html_document
+output:
+  github_document:
+    html_preview: false
+  html_document: default
 always_allow_html: true
 ---
 
@@ -104,7 +107,7 @@ pm$year <- as.numeric(pm$year) #so that colorNumeric works
 
 ### **Problem 3.** _Create a basic map in leaflet() that shows the locations of the sites (make sure to use different colors for each year). Summarize the spatial distribution of the monitoring sites._
 
-```{r}
+```{r eval = knitr::is_html_output(excludes = "gfm")}
 # Creating a basic map in leaflet() that shows the locations of the sites.
 pal <- colorNumeric(palette = "RdYlBu", domain=c(2004, 2019)) 
 
