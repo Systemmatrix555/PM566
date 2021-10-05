@@ -1,0 +1,65 @@
+---
+title: 'PM 566 Assignment #2'
+author: "Chris Hanson"
+date: "10/8/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment description: 
+Data from USC's Children's Health Study will be used to conduct data wrangling and visualization.
+There are two data sets: individual and regional. The individual data includes personal and health characteristics of children in 12 communities across Southern California. The regional data includes air quality measurements at the community level.
+
+```{r downloading-datasets}
+
+```
+
+```{r merging-datasets}
+
+```
+
+## Data wrangling
+
+1. Making sure there are no duplicates by counting the number of rows:
+```{r counting-rows}
+
+```
+
+Imputing data to fill missing values:
+```{r missing-data}
+
+```
+
+2. Creating variable "obesity_level" and creating a summary table:
+```{r categorizing-BMI}
+
+```
+
+3. Creating variable "smoke_gas_exposure":
+```{r categorizing-smoke-gas-exposure}
+
+```
+
+4. Creating summary tables for lung expiratory volume vs variables:
+```{r expiration-vs-town}
+
+```
+
+```{r expiration-vs-sex}
+
+```
+
+```{r expiration-vs-obesity}
+
+```
+
+```{r expiration-vs-exposure}
+
+```
+
+## Exploratory data analysis
+
+
