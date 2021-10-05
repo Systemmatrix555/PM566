@@ -2,11 +2,19 @@
 title: 'PM 566 Assignment #2'
 author: "Chris Hanson"
 date: "10/8/2021"
-output: github_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+```{r libraries, cache = TRUE}
+library(tidyverse)
+library(tidytext)
+library(ggplot2)
+library(tibble)
+library(dplyr)
 ```
 
 ## Assignment description: 
@@ -14,23 +22,58 @@ Data from USC's Children's Health Study will be used to conduct data wrangling a
 There are two data sets: individual and regional. The individual data includes personal and health characteristics of children in 12 communities across Southern California. The regional data includes air quality measurements at the community level.
 
 ```{r downloading-datasets}
+fn  <- "chs_individual.csv"
+fn2 <- "chs_regional.csv"
+
+if (!file.exists(fn))
+  download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/01_chs/chs_individual.csv", destfile = fn)
+
+if (!file.exists(fn2))
+  download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/01_chs/chs_regional.csv", destfile = fn2)
+
+chs_individual <-  read.csv(fn)
+chs_individual <- as_tibble(chs_individual)
+
+chs_regional <-  read.csv(fn2)
+chs_regional <- as_tibble(chs_regional)
 
 ```
 
 ```{r merging-datasets}
-
+#merge the two datasets
+chs <- merge(
+  x     = chs_individual,      
+  y     = chs_regional, 
+    # Which obs to keep?
+  all.x = TRUE,      
+  all.y = FALSE,
+  # List of variables to match
+  by.x  = "townname",
+  by.y  = "townname", 
+  )
 ```
 
 ## Data wrangling
 
 1. Making sure there are no duplicates by counting the number of rows:
 ```{r counting-rows}
-
+count(chs_individual, "townname")
+count(chs, "townname")
 ```
+
+Nothing was duplicated during the merging process.
+
+```{r removing-duplicate-rows, results = FALSE}
+chs %>% distinct()
+count(chs, "townname")
+```
+
+Ensuring that there were no duplicated rows even before the merge.
 
 Imputing data to fill missing values:
 ```{r missing-data}
-
+chs <- chs %>%
+  mutate_at(vars(male, hispanic), funs(ifelse(is.na(.), mean(., na.rm = TRUE),.)))
 ```
 
 2. Creating variable "obesity_level" and creating a summary table:
