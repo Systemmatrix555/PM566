@@ -171,18 +171,22 @@ pre code {
 </div>
 
 
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
-<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
-## v tibble  3.1.5     v dplyr   1.0.7
-## v tidyr   1.1.3     v stringr 1.4.0
-## v readr   2.0.1     v forcats 0.5.1</code></pre>
-<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>library(tidytext)
+<pre class="r"><code>library(tidyverse)
+library(tidytext)
 library(ggplot2)
-library(tibble)</code></pre>
+library(tibble)
+library(dplyr)
+library(dtplyr)
+library(data.table)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;data.table&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     between, first, last</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     transpose</code></pre>
+<pre class="r"><code>library(leaflet)</code></pre>
 <div id="assignment-description" class="section level2">
 <h2>Assignment description:</h2>
 <p>Data from USC’s Children’s Health Study will be used to conduct data wrangling and visualization. There are two data sets: individual and regional. The individual data includes personal and health characteristics of children in 12 communities across Southern California. The regional data includes air quality measurements at the community level.</p>
@@ -230,8 +234,25 @@ chs &lt;- merge(
 count(chs, &quot;townname&quot;)</code></pre>
 <p>Ensuring that there were no duplicated rows even before the merge.</p>
 <p>Imputing data to fill missing values:</p>
+<pre class="r"><code>chs &lt;- chs %&gt;%
+  group_by(male, hispanic) %&gt;%
+  mutate_all(funs(ifelse(is.na(.), mean(., na.rm = TRUE),.)))</code></pre>
+<pre><code>## `mutate_all()` ignored the following grouping variables:
+## Columns `male`, `hispanic`
+## Use `mutate_at(df, vars(-group_cols()), myoperation)` to silence the message.</code></pre>
+<pre class="r"><code>  #mutate_at(vars(male, hispanic), funs(ifelse(is.na(.), mean(., na.rm = TRUE),.)))</code></pre>
 <ol start="2" style="list-style-type: decimal">
-<li><p>Creating variable “obesity_level” and creating a summary table:</p></li>
+<li>Creating variable “obesity_level” and creating a summary table:</li>
+</ol>
+<pre class="r"><code>chs[, obesity_level := fifelse(
+  bmi &lt; 14, &quot;underweight&quot;,
+    fifelse(bmi &lt; 22, &quot;normal&quot;,
+      fifelse(bmi &lt; 24, &quot;overweight&quot;, &quot;obese&quot;))
+)]</code></pre>
+<pre class="r"><code>chs$obesity_level &lt;- cut(chs$bmi,
+                         breaks = c(-Inf, 14, 22, 24, Inf),
+                         labels = c(&quot;underweight&quot;, &quot;normal&quot;, &quot;overweight&quot;, &quot;obese&quot;))</code></pre>
+<ol start="3" style="list-style-type: decimal">
 <li><p>Creating variable “smoke_gas_exposure”:</p></li>
 <li><p>Creating summary tables for lung expiratory volume vs variables:</p></li>
 </ol>

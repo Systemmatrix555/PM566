@@ -15,6 +15,9 @@ library(tidytext)
 library(ggplot2)
 library(tibble)
 library(dplyr)
+library(dtplyr)
+library(data.table)
+library(leaflet)
 ```
 
 ## Assignment description: 
@@ -73,17 +76,51 @@ Ensuring that there were no duplicated rows even before the merge.
 Imputing data to fill missing values:
 ```{r missing-data}
 chs <- chs %>%
-  mutate_at(vars(male, hispanic), funs(ifelse(is.na(.), mean(., na.rm = TRUE),.)))
+  group_by(male, hispanic) %>%
+  mutate_all(funs(ifelse(is.na(.), mean(., na.rm = TRUE),.)))
+  #mutate_at(vars(male, hispanic), funs(ifelse(is.na(.), mean(., na.rm = TRUE),.)))
 ```
+
+Some missing values are supposed to be binary - 0 or 1. We filled NA using mean, which assigned non-integer values to some variables. Let's round these to the nearest integer to clean the data.
+
+```{r}
+chs <- chs %>%
+  mutate(asthma = round(asthma),
+         father_asthma = round(father_asthma),
+         mother_asthma = round(mother_asthma),
+         wheeze = round(wheeze),
+         hayfever = round(hayfever),
+         allergy  = round(allergy),
+         educ_parent = round(educ_parent),
+         smoke = round(smoke),
+         pets = round(pets),
+         gasstove = round(gasstove))
+```
+
 
 2. Creating variable "obesity_level" and creating a summary table:
-```{r categorizing-BMI}
-
+```{r categorizing-BMI, eval = FALSE}
+chs[, obesity_level := fifelse(
+  bmi < 14, "underweight",
+    fifelse(bmi < 22, "normal",
+      fifelse(bmi < 24, "overweight", "obese"))
+)]
 ```
+
+```{r categorizing-BMI-2}
+chs$obesity_level <- cut(chs$bmi,
+                         breaks = c(-Inf, 14, 22, 24, Inf),
+                         labels = c("underweight", "normal", "overweight", "obese"))
+```
+
 
 3. Creating variable "smoke_gas_exposure":
 ```{r categorizing-smoke-gas-exposure}
-
+chs <- chs %>%
+  mutate(smoke_gas_exposure = ifelse(smoke == 1 & gasstove == 1, "SG",
+                                ifelse(smoke == 0 & gasstove == 1, "G",
+                                  ifelse(smoke == 1 & gasstove == 0, "S", "N")
+  )))
 ```
 
 4. Creating summary tables for lung expiratory volume vs variables:
