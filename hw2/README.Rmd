@@ -116,7 +116,9 @@ chs <- chs %>%
 
 ```{r obesity_level-table}
 
-#knitr::kable(chs@bmi)
+#knitr::kable(summary(chs$obesity_level))
+summary(chs$bmi)
+summary(chs$obesity_level)
 ```
 
 
@@ -132,19 +134,28 @@ chs <- chs %>%
 
 4. Creating summary tables for lung expiratory volume vs variables:
 ```{r expiration-vs-town}
-
+#average of fev and proportion of asthma by town
+chs %>%
+  group_by(townname) %>%
+  summarise_at(vars(fev, asthma), list(name = mean))
 ```
 
 ```{r expiration-vs-sex}
-
+chs %>%
+  group_by(male) %>%
+  summarise_at(vars(fev, asthma), list(name = mean))
 ```
 
 ```{r expiration-vs-obesity}
-
+chs %>%
+  group_by(obesity_level) %>%
+  summarise_at(vars(fev, asthma), list(name = mean))
 ```
 
 ```{r expiration-vs-exposure}
-
+chs %>%
+  group_by(smoke_gas_exposure) %>%
+  summarise_at(vars(fev, asthma), list(name = mean))
 ```
 
 ## Exploratory data analysis
