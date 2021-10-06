@@ -108,10 +108,17 @@ chs[, obesity_level := fifelse(
 ```
 
 ```{r categorizing-BMI-2}
-chs$obesity_level <- cut(chs$bmi,
+chs <- chs %>%
+  mutate(obesity_level = cut(bmi,
                          breaks = c(-Inf, 14, 22, 24, Inf),
-                         labels = c("underweight", "normal", "overweight", "obese"))
+                         labels = c("underweight", "normal", "overweight", "obese")))
 ```
+
+```{r obesity_level-table}
+
+#knitr::kable(chs@bmi)
+```
+
 
 
 3. Creating variable "smoke_gas_exposure":
