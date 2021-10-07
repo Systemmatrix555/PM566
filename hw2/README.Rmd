@@ -6,10 +6,10 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
-```{r libraries, cache = TRUE}
+```{r libraries}
 library(tidyverse)
 library(tidytext)
 library(ggplot2)
@@ -58,7 +58,7 @@ chs <- merge(
 
 ## Data wrangling
 
-1. Making sure there are no duplicates by counting the number of rows:
+### 1. Making sure there are no duplicates by counting the number of rows:
 ```{r counting-rows}
 count(chs_individual, "townname")
 count(chs, "townname")
@@ -66,12 +66,14 @@ count(chs, "townname")
 
 Nothing was duplicated during the merging process.
 
+Ensuring that there were no duplicated rows even before the merge:
+
 ```{r removing-duplicate-rows, results = FALSE}
 chs %>% distinct()
 count(chs, "townname")
 ```
 
-Ensuring that there were no duplicated rows even before the merge.
+
 
 Imputing data to fill missing values:
 ```{r missing-data}
@@ -81,7 +83,7 @@ chs <- chs %>%
   #mutate_at(vars(male, hispanic), funs(ifelse(is.na(.), mean(., na.rm = TRUE),.)))
 ```
 
-Some missing values are supposed to be binary - 0 or 1. We filled NA using mean, which assigned non-integer values to some variables. Let's round these to the nearest integer to clean the data.
+Some missing values are supposed to be binary: 0 or 1. I filled NA using mean, which assigned non-integer values to some variables. Let's round these to the nearest integer to clean the data.
 
 ```{r}
 chs <- chs %>%
@@ -98,7 +100,7 @@ chs <- chs %>%
 ```
 
 
-2. Creating variable "obesity_level" and creating a summary table:
+### 2. Creating variable "obesity_level" and creating a summary table:
 ```{r categorizing-BMI, eval = FALSE}
 chs[, obesity_level := fifelse(
   bmi < 14, "underweight",
@@ -123,7 +125,7 @@ summary(chs$obesity_level)
 
 
 
-3. Creating variable "smoke_gas_exposure":
+### 3. Creating variable "smoke_gas_exposure":
 ```{r categorizing-smoke-gas-exposure}
 chs <- chs %>%
   mutate(smoke_gas_exposure = ifelse(smoke == 1 & gasstove == 1, "SG",
@@ -132,7 +134,7 @@ chs <- chs %>%
   )))
 ```
 
-4. Creating summary tables for lung expiratory volume vs variables:
+### 4. Creating summary tables for lung expiratory volume vs variables:
 ```{r expiration-vs-town}
 #average of fev and proportion of asthma by town
 chs %>%
@@ -158,6 +160,82 @@ chs %>%
   summarise_at(vars(fev, asthma), list(name = mean))
 ```
 
-## Exploratory data analysis
+# Exploratory data analysis
+
+## Following the EDA checklist:
+
+```{r}
+dim(chs)
+```
+
+```{r}
+head(chs)
+```
+```{r}
+str(chs)
+```
+```{r}
+summary(chs$bmi)
+summary(chs$fev)
+```
+```{r}
+cor(chs$bmi, chs$fev, use="complete")
+cor(chs$pm25_mass, chs$fev, use="complete")
+cor(chs$smoke, chs$fev, use="complete")
+cor(chs$gasstove, chs$fev, use="complete")
+```
+```{r}
+hist(chs$bmi, breaks = 100)
+```
+```{r}
+hist(chs$fev, breaks = 100)
+```
+A quick visualization of all of the sites in the study:
+```{r}
+leaflet(chs_regional) %>%
+  addProviderTiles('OpenStreetMap') %>%
+  addCircles(lat=~lat, lng=~lon, opacity=1, fillOpacity=1, radius=100)
+```
+
+
+
+## Question 1: What is the association between BMI and FEV?
+
+
+
+## Question 2: What is the association between smoke and gas exposure and FEV?
+
+
+
+## Question 3: What is the association between PM2.5 exposure and FEV?
+
+
+
+# Visualization
+
+## 1. Facet plot showing scatterplots with regression lines of BMI and FEV by "townname".
+
+```{r}
+ggplot()
+```
+
+
+## 2. Stacked hisograms of FEV by BMI category and FEV by smoke/gas exposure. 
+
+
+
+## 3. Barchart of BMI by smoke/gas exposure.
+
+
+
+## 4. Statistical summary graphs of FEV by BMI and FEV by smoke/gas exposure category.
+
+
+
+## 5. A leaflet map showing the concentrations of PM2.5 mass in each of the CHS communities.
+
+
+
+## 6. A visualization to examine whether PM2.5 mass is associated with FEV.
 
 

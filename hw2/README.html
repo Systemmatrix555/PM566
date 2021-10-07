@@ -177,16 +177,8 @@ library(ggplot2)
 library(tibble)
 library(dplyr)
 library(dtplyr)
-library(data.table)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;data.table&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
-## 
-##     between, first, last</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     transpose</code></pre>
-<pre class="r"><code>library(leaflet)</code></pre>
+library(data.table)
+library(leaflet)</code></pre>
 <div id="assignment-description" class="section level2">
 <h2>Assignment description:</h2>
 <p>Data from USC’s Children’s Health Study will be used to conduct data wrangling and visualization. There are two data sets: individual and regional. The individual data includes personal and health characteristics of children in 12 communities across Southern California. The regional data includes air quality measurements at the community level.</p>
@@ -218,9 +210,8 @@ chs &lt;- merge(
 </div>
 <div id="data-wrangling" class="section level2">
 <h2>Data wrangling</h2>
-<ol style="list-style-type: decimal">
-<li>Making sure there are no duplicates by counting the number of rows:</li>
-</ol>
+<div id="making-sure-there-are-no-duplicates-by-counting-the-number-of-rows" class="section level3">
+<h3>1. Making sure there are no duplicates by counting the number of rows:</h3>
 <pre class="r"><code>count(chs_individual, &quot;townname&quot;)</code></pre>
 <pre><code>## # A tibble: 1 x 2
 ##   `&quot;townname&quot;`     n
@@ -230,35 +221,137 @@ chs &lt;- merge(
 <pre><code>##   &quot;townname&quot;    n
 ## 1   townname 1200</code></pre>
 <p>Nothing was duplicated during the merging process.</p>
+<p>Ensuring that there were no duplicated rows even before the merge:</p>
 <pre class="r"><code>chs %&gt;% distinct()
 count(chs, &quot;townname&quot;)</code></pre>
-<p>Ensuring that there were no duplicated rows even before the merge.</p>
 <p>Imputing data to fill missing values:</p>
 <pre class="r"><code>chs &lt;- chs %&gt;%
   group_by(male, hispanic) %&gt;%
-  mutate_all(funs(ifelse(is.na(.), mean(., na.rm = TRUE),.)))</code></pre>
-<pre><code>## `mutate_all()` ignored the following grouping variables:
-## Columns `male`, `hispanic`
-## Use `mutate_at(df, vars(-group_cols()), myoperation)` to silence the message.</code></pre>
-<pre class="r"><code>  #mutate_at(vars(male, hispanic), funs(ifelse(is.na(.), mean(., na.rm = TRUE),.)))</code></pre>
-<ol start="2" style="list-style-type: decimal">
-<li>Creating variable “obesity_level” and creating a summary table:</li>
-</ol>
+  mutate_all(funs(ifelse(is.na(.), mean(., na.rm = TRUE),.)))
+  #mutate_at(vars(male, hispanic), funs(ifelse(is.na(.), mean(., na.rm = TRUE),.)))</code></pre>
+<p>Some missing values are supposed to be binary: 0 or 1. I filled NA using mean, which assigned non-integer values to some variables. Let’s round these to the nearest integer to clean the data.</p>
+<pre class="r"><code>chs &lt;- chs %&gt;%
+  mutate(asthma = round(asthma),
+         father_asthma = round(father_asthma),
+         mother_asthma = round(mother_asthma),
+         wheeze = round(wheeze),
+         hayfever = round(hayfever),
+         allergy  = round(allergy),
+         educ_parent = round(educ_parent),
+         smoke = round(smoke),
+         pets = round(pets),
+         gasstove = round(gasstove))</code></pre>
+</div>
+<div id="creating-variable-obesity_level-and-creating-a-summary-table" class="section level3">
+<h3>2. Creating variable “obesity_level” and creating a summary table:</h3>
 <pre class="r"><code>chs[, obesity_level := fifelse(
   bmi &lt; 14, &quot;underweight&quot;,
     fifelse(bmi &lt; 22, &quot;normal&quot;,
       fifelse(bmi &lt; 24, &quot;overweight&quot;, &quot;obese&quot;))
 )]</code></pre>
-<pre class="r"><code>chs$obesity_level &lt;- cut(chs$bmi,
+<pre class="r"><code>chs &lt;- chs %&gt;%
+  mutate(obesity_level = cut(bmi,
                          breaks = c(-Inf, 14, 22, 24, Inf),
-                         labels = c(&quot;underweight&quot;, &quot;normal&quot;, &quot;overweight&quot;, &quot;obese&quot;))</code></pre>
+                         labels = c(&quot;underweight&quot;, &quot;normal&quot;, &quot;overweight&quot;, &quot;obese&quot;)))</code></pre>
+<pre class="r"><code>#knitr::kable(summary(chs$obesity_level))
+summary(chs$bmi)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   11.30   15.96   17.81   18.50   19.99   41.27</code></pre>
+<pre class="r"><code>summary(chs$obesity_level)</code></pre>
+<pre><code>## underweight      normal  overweight       obese 
+##          35         975          87         103</code></pre>
 <ol start="3" style="list-style-type: decimal">
-<li><p>Creating variable “smoke_gas_exposure”:</p></li>
-<li><p>Creating summary tables for lung expiratory volume vs variables:</p></li>
+<li>Creating variable “smoke_gas_exposure”:</li>
 </ol>
+<pre class="r"><code>chs &lt;- chs %&gt;%
+  mutate(smoke_gas_exposure = ifelse(smoke == 1 &amp; gasstove == 1, &quot;SG&quot;,
+                                ifelse(smoke == 0 &amp; gasstove == 1, &quot;G&quot;,
+                                  ifelse(smoke == 1 &amp; gasstove == 0, &quot;S&quot;, &quot;N&quot;)
+  )))</code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li>Creating summary tables for lung expiratory volume vs variables:</li>
+</ol>
+<pre class="r"><code>#average of fev and proportion of asthma by town
+chs %&gt;%
+  group_by(townname) %&gt;%
+  summarise_at(vars(fev, asthma), list(name = mean))</code></pre>
+<pre><code>## # A tibble: 12 x 3
+##    townname      fev_name asthma_name
+##    &lt;chr&gt;            &lt;dbl&gt;       &lt;dbl&gt;
+##  1 Alpine           2087.        0.11
+##  2 Atascadero       2076.        0.25
+##  3 Lake Elsinore    2039.        0.12
+##  4 Lake Gregory     2085.        0.15
+##  5 Lancaster        2003.        0.16
+##  6 Lompoc           2034.        0.11
+##  7 Long Beach       1986.        0.13
+##  8 Mira Loma        1985.        0.15
+##  9 Riverside        1990.        0.11
+## 10 San Dimas        2027.        0.17
+## 11 Santa Maria      2026.        0.13
+## 12 Upland           2024.        0.12</code></pre>
+<pre class="r"><code>chs %&gt;%
+  group_by(male) %&gt;%
+  summarise_at(vars(fev, asthma), list(name = mean))</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##    male fev_name asthma_name
+##   &lt;int&gt;    &lt;dbl&gt;       &lt;dbl&gt;
+## 1     0    1959.       0.118
+## 2     1    2104.       0.168</code></pre>
+<pre class="r"><code>chs %&gt;%
+  group_by(obesity_level) %&gt;%
+  summarise_at(vars(fev, asthma), list(name = mean))</code></pre>
+<pre><code>## # A tibble: 4 x 3
+##   obesity_level fev_name asthma_name
+##   &lt;fct&gt;            &lt;dbl&gt;       &lt;dbl&gt;
+## 1 underweight      1698.      0.0857
+## 2 normal           2000.      0.136 
+## 3 overweight       2224.      0.161 
+## 4 obese            2266.      0.204</code></pre>
+<pre class="r"><code>chs %&gt;%
+  group_by(smoke_gas_exposure) %&gt;%
+  summarise_at(vars(fev, asthma), list(name = mean))</code></pre>
+<pre><code>## # A tibble: 4 x 3
+##   smoke_gas_exposure fev_name asthma_name
+##   &lt;chr&gt;                 &lt;dbl&gt;       &lt;dbl&gt;
+## 1 G                     2023.       0.145
+## 2 N                     2057.       0.142
+## 3 S                     2056.       0.167
+## 4 SG                    2025.       0.123</code></pre>
 </div>
-<div id="exploratory-data-analysis" class="section level2">
-<h2>Exploratory data analysis</h2>
+</div>
+<div id="exploratory-data-analysis" class="section level1">
+<h1>Exploratory data analysis</h1>
+<div id="question-1-what-is-the-association-between-bmi-and-fev" class="section level2">
+<h2>Question 1: What is the association between BMI and FEV?</h2>
+</div>
+<div id="question-2-what-is-the-association-between-smoke-and-gas-exposure-and-fev" class="section level2">
+<h2>Question 2: What is the association between smoke and gas exposure and FEV?</h2>
+</div>
+<div id="question-3-what-is-the-association-between-pm2.5-exposure-and-fev" class="section level2">
+<h2>Question 3: What is the association between PM2.5 exposure and FEV?</h2>
+</div>
+</div>
+<div id="visualization" class="section level1">
+<h1>Visualization</h1>
+<div id="facet-plot-showing-scatterplots-with-regression-lines-of-bmi-and-fev-by-townname." class="section level2">
+<h2>1. Facet plot showing scatterplots with regression lines of BMI and FEV by “townname”.</h2>
+</div>
+<div id="stacked-hisograms-of-fev-by-bmi-category-and-fev-by-smokegas-exposure." class="section level2">
+<h2>2. Stacked hisograms of FEV by BMI category and FEV by smoke/gas exposure.</h2>
+</div>
+<div id="barchart-of-bmi-by-smokegas-exposure." class="section level2">
+<h2>3. Barchart of BMI by smoke/gas exposure.</h2>
+</div>
+<div id="statistical-summary-graphs-of-fev-by-bmi-and-fev-by-smokegas-exposure-category." class="section level2">
+<h2>4. Statistical summary graphs of FEV by BMI and FEV by smoke/gas exposure category.</h2>
+</div>
+<div id="a-leaflet-map-showing-the-concentrations-of-pm2.5-mass-in-each-of-the-chs-communities." class="section level2">
+<h2>5. A leaflet map showing the concentrations of PM2.5 mass in each of the CHS communities.</h2>
+</div>
+<div id="a-visualization-to-examine-whether-pm2.5-mass-is-associated-with-fev." class="section level2">
+<h2>6. A visualization to examine whether PM2.5 mass is associated with FEV.</h2>
+</div>
 </div>
 
 
