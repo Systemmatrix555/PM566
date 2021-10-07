@@ -162,7 +162,7 @@ chs %>%
 
 # Exploratory data analysis
 
-## Following the EDA checklist:
+### Following the EDA checklist:
 
 ```{r}
 dim(chs)
@@ -199,43 +199,69 @@ leaflet(chs_regional) %>%
 
 
 
-## Question 1: What is the association between BMI and FEV?
+### Question 1: What is the association between BMI and FEV?
 
 
 
-## Question 2: What is the association between smoke and gas exposure and FEV?
+### Question 2: What is the association between smoke and gas exposure and FEV?
 
 
 
-## Question 3: What is the association between PM2.5 exposure and FEV?
+### Question 3: What is the association between PM2.5 exposure and FEV?
 
 
 
 # Visualization
 
-## 1. Facet plot showing scatterplots with regression lines of BMI and FEV by "townname".
+### 1. Facet plot showing scatterplots with regression lines of BMI and FEV by "townname".
 
 ```{r}
-ggplot()
+chs <- chs %>%
+  mutate(has_asthma = as.character(asthma))
+```
+
+```{r}
+ggplot(chs, aes(x=bmi, y=fev)) +
+  geom_point(aes(color = has_asthma)) +
+  geom_smooth()+
+  facet_wrap(~townname) +
+  theme(legend.title = element_text(size = 10),
+        legend.text = element_text(size = 7))
 ```
 
 
-## 2. Stacked hisograms of FEV by BMI category and FEV by smoke/gas exposure. 
+### 2. Stacked histograms of FEV by BMI category and FEV by smoke/gas exposure. 
+
+```{r}
+ggplot(chs, aes(fev, fill=obesity_level)) +
+  geom_histogram(binwidth = 50)
+```
+
+```{r}
+ggplot(chs, aes(fev, fill=smoke_gas_exposure)) +
+  geom_histogram(binwidth = 50)
+```
+
+### 3. Barchart of BMI by smoke/gas exposure.
+
+```{r}
+ggplot(chs, aes(x = smoke_gas_exposure, y = bmi)) +
+  geom_col()
+
+# Not sure what we want here. What should the y axis be? The mean BMI from each SGE category?
+```
+
+
+### 4. Statistical summary graphs of FEV by BMI and FEV by smoke/gas exposure category.
+
+```{r}
+
+```
+
+### 5. A leaflet map showing the concentrations of PM2.5 mass in each of the CHS communities.
 
 
 
-## 3. Barchart of BMI by smoke/gas exposure.
-
-
-
-## 4. Statistical summary graphs of FEV by BMI and FEV by smoke/gas exposure category.
-
-
-
-## 5. A leaflet map showing the concentrations of PM2.5 mass in each of the CHS communities.
-
-
-
-## 6. A visualization to examine whether PM2.5 mass is associated with FEV.
+### 6. A visualization to examine whether PM2.5 mass is associated with FEV.
 
 
