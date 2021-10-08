@@ -64,8 +64,8 @@ chs <- merge(
 
 ### 1. Making sure there are no duplicates by counting the number of rows:
 ```{r counting-rows}
-count(chs_individual, "townname")
-count(chs, "townname")
+nrow(chs_individual)
+nrow(chs)
 ```
 
 Nothing was duplicated during the merging process.
@@ -121,9 +121,10 @@ chs <- chs %>%
 
 ```{r obesity_level-table}
 
-#knitr::kable(summary(chs$obesity_level))
+knitr::kable(summary(chs$obesity_level), caption = "Summary of Obesity Level")
+knitr::kable(summary(chs$bmi), caption = "Summary of BMI variable")
 summary(chs$bmi)
-summary(chs$obesity_level)
+#summary(chs$obesity_level)
 ```
 
 
@@ -261,11 +262,11 @@ ggplot(chs, aes(x = smoke_gas_exposure, y = bmi)) +
 
 ```{r}
 
+gfev <- ggplot(chs, aes(y = fev))
+
 gfev + 
   geom_point(aes(x = bmi, color = has_asthma)) + 
   geom_smooth(aes(x = bmi)) 
-
-gfev <- ggplot(chs, aes(y = fev))
 
 gfev + 
   geom_boxplot(aes(x = obesity_level)) 
