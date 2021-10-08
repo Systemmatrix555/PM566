@@ -24,6 +24,8 @@ library(leaflet)
 Data from USC's Children's Health Study will be used to conduct data wrangling and visualization.
 There are two data sets: individual and regional. The individual data includes personal and health characteristics of children in 12 communities across Southern California. The regional data includes air quality measurements at the community level.
 
+Loading the data:
+
 ```{r downloading-datasets}
 fn  <- "chs_individual.csv"
 fn2 <- "chs_regional.csv"
@@ -41,6 +43,8 @@ chs_regional <-  read.csv(fn2)
 chs_regional <- as_tibble(chs_regional)
 
 ```
+
+Merging the datasets:
 
 ```{r merging-datasets}
 #merge the two datasets
@@ -69,13 +73,11 @@ Nothing was duplicated during the merging process.
 Ensuring that there were no duplicated rows even before the merge:
 
 ```{r removing-duplicate-rows, results = FALSE}
-chs %>% distinct()
-count(chs, "townname")
+nrow(chs %>% distinct())
 ```
 
-
-
 Imputing data to fill missing values:
+
 ```{r missing-data}
 chs <- chs %>%
   group_by(male, hispanic) %>%
@@ -102,6 +104,7 @@ chs <- chs %>%
 
 ### 2. Creating variable "obesity_level" and creating a summary table:
 ```{r categorizing-BMI, eval = FALSE}
+#FAILED CODE, not evaluated
 chs[, obesity_level := fifelse(
   bmi < 14, "underweight",
     fifelse(bmi < 22, "normal",
@@ -128,9 +131,9 @@ summary(chs$obesity_level)
 ### 3. Creating variable "smoke_gas_exposure":
 ```{r categorizing-smoke-gas-exposure}
 chs <- chs %>%
-  mutate(smoke_gas_exposure = ifelse(smoke == 1 & gasstove == 1, "SG",
-                                ifelse(smoke == 0 & gasstove == 1, "G",
-                                  ifelse(smoke == 1 & gasstove == 0, "S", "N")
+  mutate(smoke_gas_exposure = ifelse(smoke == 1 & gasstove == 1, "Smoke & Gas",
+                                ifelse(smoke == 0 & gasstove == 1, "Gas",
+                                  ifelse(smoke == 1 & gasstove == 0, "Smoke", "None")
   )))
 ```
 
@@ -190,7 +193,9 @@ hist(chs$bmi, breaks = 100)
 ```{r}
 hist(chs$fev, breaks = 100)
 ```
+
 A quick visualization of all of the sites in the study:
+
 ```{r}
 leaflet(chs) %>%
   addProviderTiles('OpenStreetMap') %>%
@@ -255,11 +260,12 @@ ggplot(chs, aes(x = smoke_gas_exposure, y = bmi)) +
 ### 4. Statistical summary graphs of FEV by BMI and FEV by smoke/gas exposure category.
 
 ```{r}
-gfev <- ggplot(chs, aes(y = fev))
 
 gfev + 
-  geom_boxplot(aes(x = smoke_gas_exposure, color = has_asthma)) + 
-  labs(title = 'FEV by SGE')
+  geom_point(aes(x = bmi, color = has_asthma)) + 
+  geom_smooth(aes(x = bmi)) 
+
+gfev <- ggplot(chs, aes(y = fev))
 
 gfev + 
   geom_boxplot(aes(x = obesity_level)) 
@@ -268,15 +274,15 @@ gfev +
   geom_boxplot(aes(x = obesity_level, color = has_asthma)) 
 
 gfev + 
-  geom_point(aes(x = bmi, color = has_asthma)) + 
-  geom_smooth(aes(x = bmi)) 
-
-gfev + 
   geom_point(aes(x = bmi, color = smoke_gas_exposure)) + 
   geom_smooth(aes(x = bmi))
 
 gfev + 
-  geom_violin(aes(x = smoke_gas_exposure)) 
+  geom_boxplot(aes(x = smoke_gas_exposure)) 
+
+gfev + 
+  geom_boxplot(aes(x = smoke_gas_exposure, color = has_asthma)) + 
+  labs(title = 'FEV by SGE')
   
 ```
 
@@ -296,8 +302,7 @@ leaflet(chs) %>%
 
 
 ```{r}
-ggplot(chs, aes(x = fev)) + 
-  geom_boxplot(aes(y = reorder(townname, fev, FUN = median), color = pm25_mass))
+
 
 gfev + 
   geom_smooth(aes(x = pm25_mass))
@@ -305,8 +310,15 @@ gfev +
 gfev + 
   geom_smooth(aes(x = pm25_mass, color = has_asthma))
 
+#gfev + 
+  #geom_smooth(aes(x = pm25_mass, color = obesity_level))
+
 gfev + 
-  geom_smooth(aes(x = pm25_mass, color = obesity_level))
+  geom_boxplot(aes(x = pm25_mass, group = cut_width(pm25_mass, 7)), width = 5) 
+
+ggplot(chs, aes(x = fev)) + 
+  geom_boxplot(aes(y = reorder(townname, -fev, FUN = median), color = pm25_mass))
+  
 ```
 
 
