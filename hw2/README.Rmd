@@ -192,7 +192,7 @@ hist(chs$fev, breaks = 100)
 ```
 A quick visualization of all of the sites in the study:
 ```{r}
-leaflet(chs_regional) %>%
+leaflet(chs) %>%
   addProviderTiles('OpenStreetMap') %>%
   addCircles(lat=~lat, lng=~lon, opacity=1, fillOpacity=1, radius=100)
 ```
@@ -217,7 +217,7 @@ leaflet(chs_regional) %>%
 
 ```{r}
 chs <- chs %>%
-  mutate(has_asthma = as.character(asthma))
+  mutate(has_asthma = as.character(active_asthma))
 ```
 
 ```{r}
@@ -255,13 +255,59 @@ ggplot(chs, aes(x = smoke_gas_exposure, y = bmi)) +
 ### 4. Statistical summary graphs of FEV by BMI and FEV by smoke/gas exposure category.
 
 ```{r}
+gfev <- ggplot(chs, aes(y = fev))
 
+gfev + 
+  geom_boxplot(aes(x = smoke_gas_exposure, color = has_asthma)) + 
+  labs(title = 'FEV by SGE')
+
+gfev + 
+  geom_boxplot(aes(x = obesity_level)) 
+
+gfev + 
+  geom_boxplot(aes(x = obesity_level, color = has_asthma)) 
+
+gfev + 
+  geom_point(aes(x = bmi, color = has_asthma)) + 
+  geom_smooth(aes(x = bmi)) 
+
+gfev + 
+  geom_point(aes(x = bmi, color = smoke_gas_exposure)) + 
+  geom_smooth(aes(x = bmi))
+
+gfev + 
+  geom_violin(aes(x = smoke_gas_exposure)) 
+  
 ```
 
 ### 5. A leaflet map showing the concentrations of PM2.5 mass in each of the CHS communities.
 
+```{r}
+pal <- colorNumeric(palette = "plasma", domain = chs$pm25_mass)
+
+leaflet(chs) %>%
+  addProviderTiles('OpenStreetMap') %>%
+  addCircles(lat=~lat, lng=~lon, opacity=1, fillOpacity=1, radius=100, color = ~pal(pm25_mass)) %>%
+  addLegend("bottomright", pal = pal, values = ~pm25_mass, title = "PM 2.5", opacity = 1)
+```
 
 
 ### 6. A visualization to examine whether PM2.5 mass is associated with FEV.
+
+
+```{r}
+ggplot(chs, aes(x = fev)) + 
+  geom_boxplot(aes(y = reorder(townname, fev, FUN = median), color = pm25_mass))
+
+gfev + 
+  geom_smooth(aes(x = pm25_mass))
+
+gfev + 
+  geom_smooth(aes(x = pm25_mass, color = has_asthma))
+
+gfev + 
+  geom_smooth(aes(x = pm25_mass, color = obesity_level))
+```
+
 
 
