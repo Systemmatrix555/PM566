@@ -1,0 +1,45 @@
+---
+title: "PM566 Lab 7"
+author: "Chris Hanson"
+date: "10/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+```
+
+
+## Question 1: How many sars-cov-2 papers?
+
+```{r how many}
+# Downloading the website
+website <- xml2::read_html("https://pubmed.ncbi.nlm.nih.gov/?term=sars-cov-2")
+
+# Finding the counts
+counts <- xml2::xml_find_first(website, "/html/body/main/div[9]/div[2]/div[2]/div[1]/span")
+
+# Turning it into text
+counts <- as.character(counts)
+
+# Extracting the data using regex
+stringr::str_extract(counts, "[0-9,]+")
+```
+
+## Question 2: Academic publications on COVID19 and Hawaii
+
+```{r}
+library(httr)
+query_ids <- GET(
+  url   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+  query = list("QUERY PARAMETERS")
+)
+
+# Extracting the content of the response of GET
+ids <- httr::content(query_ids)
+```
+
