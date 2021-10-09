@@ -402,10 +402,10 @@ leaflet(chs_regional) %>%
   addCircles(lat=~lat, lng=~lon, opacity=1, fillOpacity=1, radius=100)
 ```
 
-<div id="htmlwidget-e025ef4c730212990c7f" style="width:672px;height:480px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-e025ef4c730212990c7f">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenStreetMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[32.8350521,33.6680772,34.242901,34.6867846,34.6391501,33.7700504,33.9845417,33.9806005,34.1066756,35.4894169,34.9530337,34.09751],[-116.7664109,-117.3272615,-117.275233,-118.1541632,-120.4579409,-118.1937395,-117.5159449,-117.3754942,-117.8067257,-120.6707255,-120.4357191,-117.6483876],100,null,null,{"interactive":true,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":1,"fill":true,"fillColor":"#03F","fillOpacity":1},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]}],"limits":{"lat":[32.8350521,35.4894169],"lng":[-120.6707255,-116.7664109]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-33e0d7aa52e4e0f3ca1e" style="width:672px;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-33e0d7aa52e4e0f3ca1e">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenStreetMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[32.8350521,33.6680772,34.242901,34.6867846,34.6391501,33.7700504,33.9845417,33.9806005,34.1066756,35.4894169,34.9530337,34.09751],[-116.7664109,-117.3272615,-117.275233,-118.1541632,-120.4579409,-118.1937395,-117.5159449,-117.3754942,-117.8067257,-120.6707255,-120.4357191,-117.6483876],100,null,null,{"interactive":true,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":1,"fill":true,"fillColor":"#03F","fillOpacity":1},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]}],"limits":{"lat":[32.8350521,35.4894169],"lng":[-120.6707255,-116.7664109]}},"evals":[],"jsHooks":[]}</script>
 
-## These three questions will be considered with the following visualizations:
+### These three questions will be considered with the following visualizations:
 
 What is the association between BMI and FEV?
 
@@ -470,7 +470,8 @@ mean FEV values.
 
 ``` r
 ggplot(chs, aes(fill = smoke_gas_exposure, x = obesity_level)) +
-  geom_bar()
+  geom_bar() + 
+  labs(title = 'BMI by smoke & gas exposure')
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
@@ -481,7 +482,8 @@ category, and compare by relative percentage:
 
 ``` r
 ggplot(chs, aes(fill = smoke_gas_exposure, x = obesity_level)) +
-  geom_bar(position = "fill")
+  geom_bar(position = "fill") + 
+  labs(title = 'BMI by smoke & gas exposure, normalized')
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
@@ -571,8 +573,8 @@ leaflet(chs_regional) %>%
   addLegend("bottomright", pal = pal, values = ~pm25_mass, title = "PM 2.5", opacity = 1)
 ```
 
-<div id="htmlwidget-13859467672fe75e0d0e" style="width:672px;height:480px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-13859467672fe75e0d0e">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenStreetMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[32.8350521,33.6680772,34.242901,34.6867846,34.6391501,33.7700504,33.9845417,33.9806005,34.1066756,35.4894169,34.9530337,34.09751],[-116.7664109,-117.3272615,-117.275233,-118.1541632,-120.4579409,-118.1937395,-117.5159449,-117.3754942,-117.8067257,-120.6707255,-120.4357191,-117.6483876],100,null,null,{"interactive":true,"className":"","stroke":true,"color":["#4903A0","#8405A7","#350498","#44039E","#0D0887","#D6556D","#F0F921","#EF7E50","#E26660","#310597","#2C0594","#F07F4F"],"weight":5,"opacity":1,"fill":true,"fillColor":["#4903A0","#8405A7","#350498","#44039E","#0D0887","#D6556D","#F0F921","#EF7E50","#E26660","#310597","#2C0594","#F07F4F"],"fillOpacity":1},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]},{"method":"addLegend","args":[{"colors":["#0D0887 , #5E01A6 16.826322365681%, #AA2395 37.6509787588505%, #DE5F65 58.47563515202%, #FCA338 79.3002915451895%, #F0F921 "],"labels":["10","15","20","25"],"na_color":null,"na_label":"NA","opacity":1,"position":"bottomright","type":"numeric","title":"PM 2.5","extra":{"p_1":0.16826322365681,"p_n":0.793002915451895},"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[32.8350521,35.4894169],"lng":[-120.6707255,-116.7664109]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-7c8d5db1e39fc97116ac" style="width:672px;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-7c8d5db1e39fc97116ac">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenStreetMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[32.8350521,33.6680772,34.242901,34.6867846,34.6391501,33.7700504,33.9845417,33.9806005,34.1066756,35.4894169,34.9530337,34.09751],[-116.7664109,-117.3272615,-117.275233,-118.1541632,-120.4579409,-118.1937395,-117.5159449,-117.3754942,-117.8067257,-120.6707255,-120.4357191,-117.6483876],100,null,null,{"interactive":true,"className":"","stroke":true,"color":["#4903A0","#8405A7","#350498","#44039E","#0D0887","#D6556D","#F0F921","#EF7E50","#E26660","#310597","#2C0594","#F07F4F"],"weight":5,"opacity":1,"fill":true,"fillColor":["#4903A0","#8405A7","#350498","#44039E","#0D0887","#D6556D","#F0F921","#EF7E50","#E26660","#310597","#2C0594","#F07F4F"],"fillOpacity":1},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]},{"method":"addLegend","args":[{"colors":["#0D0887 , #5E01A6 16.826322365681%, #AA2395 37.6509787588505%, #DE5F65 58.47563515202%, #FCA338 79.3002915451895%, #F0F921 "],"labels":["10","15","20","25"],"na_color":null,"na_label":"NA","opacity":1,"position":"bottomright","type":"numeric","title":"PM 2.5","extra":{"p_1":0.16826322365681,"p_n":0.793002915451895},"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[32.8350521,35.4894169],"lng":[-120.6707255,-116.7664109]}},"evals":[],"jsHooks":[]}</script>
 
 It is not surprising to see that the area around Los Angeles has higher
 PM 2.5 values than those sites further from the city.

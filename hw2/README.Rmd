@@ -223,7 +223,7 @@ leaflet(chs_regional) %>%
   addCircles(lat=~lat, lng=~lon, opacity=1, fillOpacity=1, radius=100)
 ```
 
-## These three questions will be considered with the following visualizations:
+### These three questions will be considered with the following visualizations:
 
 What is the association between BMI and FEV?
 
@@ -278,14 +278,16 @@ This chart provides information about the relative proportions of each category 
 
 ```{r}
 ggplot(chs, aes(fill = smoke_gas_exposure, x = obesity_level)) +
-  geom_bar()
+  geom_bar() + 
+  labs(title = 'BMI by smoke & gas exposure')
 ```
 
 Because the above graph is hard to read due to the large difference in scale between different obesity levels, it is helpful to normalize each category, and compare by relative percentage:
 
 ```{r}
 ggplot(chs, aes(fill = smoke_gas_exposure, x = obesity_level)) +
-  geom_bar(position = "fill")
+  geom_bar(position = "fill") + 
+  labs(title = 'BMI by smoke & gas exposure, normalized')
 ```
 
 One conclusion that can be made from the above visualization is that as obesity levels increase, there is a higher prevalence of smoke + smoke & gas. This doesn't say anything about asthma, but perhaps suggests something about obesity and households with smokers.
@@ -352,7 +354,6 @@ It is not surprising to see that the area around Los Angeles has higher PM 2.5 v
 
 ### 6. A visualization to examine whether PM2.5 mass is associated with FEV.
 
-
 ```{r}
 gfev + 
   geom_smooth(aes(x = pm25_mass)) + 
@@ -381,7 +382,3 @@ ggplot(chs, aes(x = fev)) +
 This first box plot is not very elegant (what PM 2.5 values exactly are included in each box?), but it generally suggests that as PM 2.5 increases, median FEV decreases.
 
 The second plot tells the same story: as we observe the towns ranked by increasing FEV and apply a color gradient based on their PM 2.5 value, we can observe the trend that PM 2.5 increases as FEV decreases.
-
-
-
-
