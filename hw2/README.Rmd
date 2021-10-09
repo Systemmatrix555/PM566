@@ -2,7 +2,11 @@
 title: 'PM 566 Assignment #2'
 author: "Chris Hanson"
 date: "10/8/2021"
-output: html_document
+output: 
+  github_document:
+    html_preview: false
+  html_document: default
+always_allow_html: TRUE
 ---
 
 ```{r setup, include=FALSE}
@@ -214,7 +218,7 @@ hist(chs$fev, breaks = 50)
 A quick visualization of all of the sites in the study:
 
 ```{r}
-leaflet(chs) %>%
+leaflet(chs_regional) %>%
   addProviderTiles('OpenStreetMap') %>%
   addCircles(lat=~lat, lng=~lon, opacity=1, fillOpacity=1, radius=100)
 ```
@@ -284,7 +288,7 @@ ggplot(chs, aes(fill = smoke_gas_exposure, x = obesity_level)) +
   geom_bar(position = "fill")
 ```
 
-
+One conclusion that can be made from the above visualization is that as obesity levels increase, there is a higher prevalence of smoke + smoke & gas. This doesn't say anything about asthma, but perhaps suggests something about obesity and households with smokers.
 
 ### 4. Statistical summary graphs of FEV by BMI and FEV by smoke/gas exposure category.
 
@@ -298,7 +302,7 @@ gfev +
   labs(title = 'Scatterplot of FEV by BMI') 
 ```
 
-This scatter plot indicates a positive correlation between BMI and FEV.
+This scatter plot indicates a positive correlation between BMI and FEV. There isn't any clear distinction between the asthmatic and non-asthmatic groups.
 
 ```{r}
 
@@ -329,7 +333,7 @@ gfev +
   labs(title = 'Boxplots of FEV by smoke & gas exposure, considering asthma')
 ```
 
-The scatter plot is not terribly illuminating. 
+The scatter plot is not very illuminating. 
 The box plots indicate a slightly lower median FEV for those exposed to just gas or both smoke and gas. Surprisingly, there isn't a noticeably lower FEV for those exposed to only smoke.
 The second box plot indicates that within each smoke & gas category, there is usually a lower FEV for asthmatics than for non-asthmatics.
 
@@ -338,7 +342,7 @@ The second box plot indicates that within each smoke & gas category, there is us
 ```{r}
 pal <- colorNumeric(palette = "plasma", domain = chs$pm25_mass)
 
-leaflet(chs) %>%
+leaflet(chs_regional) %>%
   addProviderTiles('OpenStreetMap') %>%
   addCircles(lat=~lat, lng=~lon, opacity=1, fillOpacity=1, radius=100, color = ~pal(pm25_mass)) %>%
   addLegend("bottomright", pal = pal, values = ~pm25_mass, title = "PM 2.5", opacity = 1)
@@ -360,9 +364,9 @@ gfev +
   
 ```
 
-The simple regression plot of FEV vs PM 2.5 mass shows that there is a negative correlation - as there are more particles in the air, FEV drops (as expected).
+The simple regression plot of FEV vs PM 2.5 mass shows that there is a negative correlation - where there are more particles in the air, FEV drops (as expected).
 
-The second plot displays this comparison for asthmatics and non-asthmatics. Asthmatics appear to be more negatively affected by PM 2.5 - except for an unusual upward blip at the higher end of PM 2.5.
+The second plot shows this comparison for asthmatics and non-asthmatics. Asthmatics appear to be more negatively affected by PM 2.5 - except for an unusual upward blip at the higher end of PM 2.5.
 
 ```{r}
 gfev + 
@@ -374,8 +378,9 @@ ggplot(chs, aes(x = fev)) +
   labs(title = 'Boxplots of FEV per town, with color denoting PM2.5')
 ```
 
-This first box plot is not too elegant (what PM 2.5 values exactly are included in each box?), but it generally suggests that as PM 2.5 increases, median FEV decreases.
-The second plot tells the same story: as we observe the towns ranked by increasing FEV and color coordinate them based on their PM 2.5 value, we can observe the general trend that PM 2.5 is increasing as FEV is decreasing.
+This first box plot is not very elegant (what PM 2.5 values exactly are included in each box?), but it generally suggests that as PM 2.5 increases, median FEV decreases.
+
+The second plot tells the same story: as we observe the towns ranked by increasing FEV and apply a color gradient based on their PM 2.5 value, we can observe the trend that PM 2.5 increases as FEV decreases.
 
 
 
