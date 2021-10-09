@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
-
+ 
 ## Question 1: How many sars-cov-2 papers?
 
 ```{r how many}
