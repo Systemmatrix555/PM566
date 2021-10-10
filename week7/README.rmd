@@ -13,26 +13,28 @@ always_allow_html: TRUE
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+Lab description: Using the NCBI (National Center for Biotechnology Information) API to make queries and extract information using XML and regular expressions.
 
-```
-
- 
-## Question 1: How many sars-cov-2 papers?
+## Question 1: How many results are provided on PubMed when searching sars-cov-2?
 
 ```{r how many}
-# Downloading the website
+# Downloading the website using XML
 website <- xml2::read_html("https://pubmed.ncbi.nlm.nih.gov/?term=sars-cov-2")
 
 # Finding the counts
+#The XPath was found by right clicking the area of the website of which we wanted to see the html code and clicking "inspect," then right clicking on that code and copying full Xpath. We then search the html code for this Xpath.
 counts <- xml2::xml_find_first(website, "/html/body/main/div[9]/div[2]/div[2]/div[1]/span")
 
-# Turning it into text
+# "counts" is currently an {html_node}. Turning it into text:
 counts <- as.character(counts)
+#"counts" is currently: "<span class=\"value\">114,846</span>"
 
-# Extracting the data using regex
-stringr::str_extract(counts, "[0-9,]+")
+# Extracting the data using regex.
+#stringr is a tidyverse regex package.
+#[0-9] is any number in the range 0-9, + means one or more matches, and we also include a comma.
+stringr::str_extract(counts, "[0-9,]+") #This is our final answer
 ```
+
 
 ## Question 2: Academic publications on COVID19 and Hawaii
 
