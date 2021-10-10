@@ -40,6 +40,9 @@ stringr::str_extract(counts, "[0-9,]+") #This is our final answer
 
 ```{r}
 library(httr)
+#communicating with APIs
+#httr is an r package for working with html. GET is a common httr function, it GETS a url.
+
 query_ids <- GET(
   url   = "https://eutils.ncbi.nlm.nih.gov/",
   path  = "entrez/eutils/esearch.fcgi",
@@ -51,24 +54,34 @@ query_ids <- GET(
 
 # Extracting the content of the response of GET
 ids <- httr::content(query_ids)
+#This returns an XML object. 
 ```
 
 ## Question 3: Get details about the articles
 
+The IDs are wrapped around text in the following way: <Id>... id number ... </Id>. The ID number can be extracted using a regex:
+
 ```{r}
 ids_list <- xml2::as_list(ids)
   
-  # Turn the result into a character vector
+  # Turn the result of Q2 into a character vector
 ids <- as.character(ids)
 
-# Find all the ids 
+# Find all the ids using a stringr regex.
+# We are looking for multiple digits within <Id> brackets.
 ids <- stringr::str_extract_all(ids, "<Id>[[:digit:]]+</Id>")[[1]]
 
-# Remove all the leading and trailing <Id> </Id>. Make use of "|"
+# Remove all the leading and trailing <Id> </Id>.
 ids <- stringr::str_remove_all(ids, "<Id>|</Id>")
 ```
 
+We now have a list of all of the IDs. Next we need to get the abstracts of all of the papers associated with these ID numbers. We will do so using httr::GET
+
 ```{r}
+
+#Now instead of term: covid19 hawaii, we query with the ID numbers of the papers we just gathered, and the rettype "abstract."
+
+#"I()" is inhibit interpretation/conversion of objects. Without doing so, R would convert the comma in our ID numbers into a "%2C". We also collapse the , which apparently removes it.
 publications <- GET(
   url   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
   query = list(
@@ -79,12 +92,16 @@ publications <- GET(
     )
 )
 
-# Turning the output into character vector
+# Extracting the content of the results of GET into an XML object:
 publications <- httr::content(publications)
+
+#Turning this XML object into characters:
 publications_txt <- as.character(publications)
 ```
 
 Question 4: Distribution of universities, schools, and departments
+
+Use stringr on the publications_txt created above to capture all of the terms that look like "University of ..." or "... Institute of ...".
 
 ```{r}
 library(stringr)
@@ -93,30 +110,52 @@ institution <- str_extract_all(
   str_to_lower(publications_txt),
   "university\\s+of\\s+(southern|new|the)?\\s*[[:alpha:]-]+|\\s+institute\\s+of\\s+(southern|new|the)?\\s*[[:alpha:]-]+"
   ) 
+
+# "\s" is whitespace character. when you need to use a "\", you have to double it. ? means 0 or 1 match, * is zero or more matches. [[:alpha:]] is upper and lower case letters, - allows it to have a dash inside, + is one or more matches.
+
 institution <- unlist(institution)
-table(institution)
+table(institution) #table builds a contingency table of the counts
 ```
 
-I'll do the school later.
-
-Question 5: Form a database
+Now I'll repeat the exercise on "School of" or "Department of":
 
 ```{r}
+department <- str_extract_all(
+  str_to_lower(publications_txt),
+  "department\\s+of\\s*[[:alpha:]-]+|school\\s+of\\s*[[:alpha:]-]+"
+  ) 
+
+department <- unlist(department)
+table(department)
+```
+
+Question 5: Form a database which includes the title and the abstract of the papers. 
+
+```{r}
+
+#Using xml_children() first will keep one element per id.
 pub_char_list <- xml2::xml_children(publications)
 pub_char_list <- sapply(pub_char_list, as.character)
 
-#
+#Extracting the abstract for each one of the elements.
+
+#print matches all printable characters like alphabets, numbers, and blank spaces. space is tab, newline, and space. 
 abstracts <- str_extract(pub_char_list, "<Abstract>[[:print:][:space:]]+</Abstract>")
+#We now remove all the html tags 
 abstracts <- str_remove_all(abstracts, "</?[[:alnum:]- =\"]+.")
+#Removing all the extra space on the line, replacing them with a single space.
 abstracts <- str_replace_all(abstracts, "[[:space:]]+", " ")
 
+#Extracting the title for each one of the elements in the XML object, just like we did for abstracts.
 titles <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
 titles <- str_remove_all(titles, "</?[[:alnum:]- =\"]+>")
 
 database <- data.frame(
-  "[DATA TO CONCATENATE]"
+  PubMedId = ids,
+  title    = titles,
+  Abstract = abstracts
 )
-knitr::kable(database)
+knitr::kable(database[1:5,], caption = "Covid19 and Hawaii")
 ```
 
 
