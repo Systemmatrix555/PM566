@@ -1,0 +1,12 @@
+---
+title: "PM 566 Week 10 Lab"
+author: "Chris Hanson"
+date: "10/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
