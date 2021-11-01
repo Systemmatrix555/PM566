@@ -11,10 +11,37 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # 1. APIs
 
-Using the NCBI API, look for papers that show up under the term "sars-cov-2 trial vaccine." Look for the data in the pubmed databse, and then retrieve the details of the paper (as shown in lab 7). 
+Using the NCBI API, look for papers that show up under the term "sars-cov-2 trial vaccine." Look for the data in the pubmed database, and then retrieve the details of the paper (as shown in lab 7), including the pubmed ids.
+
+```{r}
+library(httr)
+library(xml2)
+library(stringr)
+```
+
 
 ```{r}
 
+# Accessing the PubMed database through the NCBI API and searching for "sars-cov-2 trial  vaccine".  
+query_ids <- GET(
+  url = "https://eutils.ncbi.nlm.nih.gov/",
+  path = "entrez/eutils/esearch.fcgi",
+  query = list(db = "pubmed",
+               term = "sars-cov-2 trial vaccine",
+               retmax = 10000)
+)
+
+query_ids$status_code
+
+ids <- content(query_ids)
+
+ids_list  <- as_list(ids)
+
+ids2 <- as.character(ids)
+
+ids2 <- str_extract_all(ids2, "<Id>[[:digit:]]+</Id>")[[1]]
+
+ids2 <- str_remove_all(ids2, "<Id>|</Id>")
 ```
 
-I found `r` papers.
+I found `r length(ids2)` papers.

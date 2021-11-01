@@ -171,7 +171,34 @@ pre code {
 </div>
 
 
+<div id="apis" class="section level1">
+<h1>1. APIs</h1>
+<p>Using the NCBI API, look for papers that show up under the term “sars-cov-2 trial vaccine.” Look for the data in the pubmed database, and then retrieve the details of the paper (as shown in lab 7), including the pubmed ids.</p>
+<pre class="r"><code>library(httr)
+library(xml2)
+library(stringr)</code></pre>
+<pre class="r"><code># Accessing the PubMed database through the NCBI API and searching for &quot;sars-cov-2 trial  vaccine&quot;.  
+query_ids &lt;- GET(
+  url = &quot;https://eutils.ncbi.nlm.nih.gov/&quot;,
+  path = &quot;entrez/eutils/esearch.fcgi&quot;,
+  query = list(db = &quot;pubmed&quot;,
+               term = &quot;sars-cov-2 trial vaccine&quot;,
+               retmax = 10000)
+)
 
+query_ids$status_code</code></pre>
+<pre><code>## [1] 200</code></pre>
+<pre class="r"><code>ids &lt;- content(query_ids)
+
+ids_list  &lt;- as_list(ids)
+
+ids2 &lt;- as.character(ids)
+
+ids2 &lt;- str_extract_all(ids2, &quot;&lt;Id&gt;[[:digit:]]+&lt;/Id&gt;&quot;)[[1]]
+
+ids2 &lt;- str_remove_all(ids2, &quot;&lt;Id&gt;|&lt;/Id&gt;&quot;)</code></pre>
+<p>I found 1036 papers.</p>
+</div>
 
 
 
