@@ -27,7 +27,7 @@ counts <- as.character(counts)
 stringr::str_extract(counts, "[0-9,]+") #This is our final answer
 ```
 
-    ## [1] "114,846"
+    ## [1] "119,937"
 
 ## Question 2: Academic publications on COVID19 and Hawaii
 
@@ -118,11 +118,13 @@ table(institution) #table builds a contingency table of the counts
     ##                                 1                                 1 
     ##           institute of biomedical          institute of biomedicine 
     ##                                 1                                 1 
-    ##         institute of chiropractic            institute of education 
+    ##        institute of biostructures         institute of chiropractic 
     ##                                 1                                 1 
-    ##                institute of emory        institute of environmental 
-    ##                                 2                                 3 
-    ##         institute of epidemiology              institute of harvard 
+    ##            institute of education                institute of emory 
+    ##                                 1                                 2 
+    ##        institute of environmental         institute of epidemiology 
+    ##                                 3                                 1 
+    ##               institute of global              institute of harvard 
     ##                                 1                                 2 
     ##               institute of health                institute of liver 
     ##                                 5                                 2 
@@ -140,48 +142,50 @@ table(institution) #table builds a contingency table of the counts
     ##                                 2                                 1 
     ##       institute of southern italy           institute of technology 
     ##                                 2                                 4 
-    ##             institute of tropical             university of alberta 
+    ##             institute of tropical         institute of tuberculosis 
     ##                                13                                 2 
-    ##             university of applied             university of arizona 
-    ##                                 1                                 5 
-    ##            university of arkansas               university of basel 
-    ##                                 1                                 8 
-    ##               university of benin            university of botswana 
+    ##             university of alberta             university of applied 
+    ##                                 2                                 1 
+    ##             university of arizona            university of arkansas 
+    ##                                 5                                 1 
+    ##               university of basel               university of benin 
+    ##                                 8                                 1 
+    ##            university of botswana            university of bradford 
     ##                                 1                                 1 
-    ##            university of bradford             university of bristol 
-    ##                                 1                                 4 
-    ##             university of british             university of calgary 
+    ##             university of bristol             university of british 
+    ##                                 4                                 4 
+    ##             university of calgary          university of california 
+    ##                                 1                                65 
+    ##             university of chicago          university of cincinnati 
+    ##                                11                                 9 
+    ##            university of colorado         university of connecticut 
+    ##                                 5                                 1 
+    ##          university of copenhagen             university of córdoba 
+    ##                                 1                                 1 
+    ##           university of education              university of exeter 
+    ##                                 1                                 1 
+    ##             university of florida             university of granada 
+    ##                                 5                                 2 
+    ##               university of haifa               university of hawai 
+    ##                                 1                               169 
+    ##              university of hawaii        university of hawaii-manoa 
+    ##                               180                                 2 
+    ##              university of health                university of hong 
+    ##                                 8                                 1 
+    ##            university of honolulu            university of illinois 
+    ##                                 3                                 1 
+    ##                university of iowa           university of jerusalem 
     ##                                 4                                 1 
-    ##          university of california             university of chicago 
-    ##                                65                                11 
-    ##          university of cincinnati            university of colorado 
-    ##                                 9                                 5 
-    ##         university of connecticut          university of copenhagen 
+    ##                university of juiz              university of kansas 
+    ##                                 4                                 2 
+    ##            university of kentucky            university of lausanne 
     ##                                 1                                 1 
-    ##             university of córdoba           university of education 
-    ##                                 1                                 1 
-    ##              university of exeter             university of florida 
-    ##                                 1                                 5 
-    ##             university of granada               university of haifa 
+    ##               university of leeds          university of louisville 
     ##                                 2                                 1 
-    ##               university of hawai              university of hawaii 
-    ##                                92                               180 
-    ##        university of hawaii-manoa              university of health 
-    ##                                 2                                 8 
-    ##                university of hong            university of honolulu 
-    ##                                 1                                 3 
-    ##            university of illinois                university of iowa 
-    ##                                 1                                 4 
-    ##           university of jerusalem                university of juiz 
-    ##                                 1                                 4 
-    ##              university of kansas            university of kentucky 
-    ##                                 2                                 1 
-    ##            university of lausanne               university of leeds 
-    ##                                 1                                 2 
-    ##          university of louisville              university of malaya 
-    ##                                 1                                 2 
-    ##            university of maryland            university of medicine 
-    ##                                 9                                 3 
+    ##              university of malaya            university of maryland 
+    ##                                 2                                 9 
+    ##             university of medical            university of medicine 
+    ##                                 2                                 3 
     ##           university of melbourne               university of miami 
     ##                                 1                                 2 
     ##            university of michigan           university of minnesota 
@@ -198,30 +202,32 @@ table(institution) #table builds a contingency table of the counts
     ##                                 1                                 6 
     ##              university of ottawa              university of oxford 
     ##                                 1                                 9 
-    ##               university of paris        university of pennsylvania 
-    ##                                 1                                47 
-    ##          university of pittsburgh               university of porto 
-    ##                                13                                 2 
-    ##              university of puerto                 university of rio 
-    ##                                 2                                 1 
-    ##           university of rochester                 university of sao 
-    ##                                 4                                 2 
-    ##             university of science           university of singapore 
-    ##                                13                                 1 
-    ##               university of south university of southern california 
-    ##                                 4                                21 
-    ##    university of southern denmark              university of sydney 
+    ##             university of palermo               university of paris 
     ##                                 1                                 1 
-    ##          university of technology               university of texas 
-    ##                                 3                                 7 
-    ##          university of the health     university of the philippines 
-    ##                                16                                 1 
-    ##             university of toronto              university of toulon 
-    ##                                 5                                 1 
-    ##            university of tübingen                university of utah 
-    ##                                 3                                 4 
-    ##          university of washington           university of wisconsin 
-    ##                                 6                                 3
+    ##        university of pennsylvania          university of pittsburgh 
+    ##                                47                                13 
+    ##               university of porto              university of puerto 
+    ##                                 2                                 2 
+    ##                 university of rio           university of rochester 
+    ##                                 1                                 4 
+    ##                 university of sao             university of science 
+    ##                                 2                                13 
+    ##           university of singapore               university of south 
+    ##                                 1                                 4 
+    ## university of southern california    university of southern denmark 
+    ##                                21                                 1 
+    ##              university of sydney          university of technology 
+    ##                                 1                                 3 
+    ##               university of texas          university of the health 
+    ##                                 7                                16 
+    ##     university of the philippines             university of toronto 
+    ##                                 1                                 5 
+    ##              university of toulon            university of tübingen 
+    ##                                 1                                 3 
+    ##                university of utah          university of washington 
+    ##                                 4                                 6 
+    ##           university of wisconsin                university of york 
+    ##                                 3                                 1
 
 Now I’ll repeat the exercise on “School of” or “Department of”:
 
@@ -267,11 +273,11 @@ table(department)
     ##       department of environmental        department of epidemiology 
     ##                                 6                                18 
     ##        department of experimental              department of family 
-    ##                                 1                                 6 
+    ##                                 1                                 9 
     ##             department of general             department of genetic 
     ##                                 3                                 1 
     ##           department of geography              department of health 
-    ##                                 5                                50 
+    ##                                 5                                69 
     ##          department of hematology          department of immunology 
     ##                                 3                                 1 
     ##          department of infectious         department of information 
@@ -285,9 +291,9 @@ table(department)
     ##          department of mechanical             department of medical 
     ##                                 5                                 7 
     ##            department of medicine        department of microbiology 
-    ##                               110                                 3 
+    ##                               112                                 3 
     ##              department of native          department of nephrology 
-    ##                                 2                                 5 
+    ##                                 3                                 5 
     ##        department of neurological           department of neurology 
     ##                                12                                 2 
     ##        department of neurosurgery             department of nursing 
@@ -305,43 +311,45 @@ table(department)
     ##      department of pharmaceutical        department of pharmacology 
     ##                                 1                                 2 
     ##            department of pharmacy            department of physical 
-    ##                                 1                                 5 
+    ##                                 2                                 5 
     ##          department of physiology       department of physiotherapy 
     ##                                10                                 1 
     ##          department of population          department of preventive 
     ##                                 6                                13 
     ##          department of psychiatry          department of psychology 
-    ##                                27                                 7 
+    ##                                30                                 7 
     ##              department of public           department of pulmonary 
     ##                                10                                 1 
-    ##        department of quantitative      department of rehabilitation 
-    ##                                 8                                 6 
-    ##            department of research        department of rheumatology 
-    ##                                 1                                 7 
-    ##             department of smoking              department of social 
+    ##        department of quantitative        department of radiotherapy 
     ##                                 8                                 1 
-    ##           department of sociology              department of sports 
+    ##      department of rehabilitation            department of research 
+    ##                                 6                                 1 
+    ##        department of rheumatology             department of smoking 
+    ##                                 7                                 8 
+    ##              department of social           department of sociology 
+    ##                                 4                                 6 
+    ##              department of sports          department of statistics 
+    ##                                 1                                 2 
+    ##             department of surgery             department of traffic 
+    ##                                13                                 1 
+    ##       department of translational            department of tropical 
+    ##                                 1                                31 
+    ##                department of twin             department of urology 
     ##                                 4                                 1 
-    ##          department of statistics             department of surgery 
-    ##                                 2                                13 
-    ##             department of traffic       department of translational 
-    ##                                 1                                 1 
-    ##            department of tropical                department of twin 
-    ##                                31                                 4 
-    ##             department of urology            department of veterans 
-    ##                                 1                                 8 
-    ##          department of veterinary              school of biomedical 
-    ##                                 2                                 3 
-    ##                   school of brown               school of education 
-    ##                                 2                                 2 
-    ##              school of electronic            school of epidemiology 
-    ##                                 1                                 6 
-    ##                  school of health              school of immunology 
+    ##            department of veterans          department of veterinary 
+    ##                                 8                                 2 
+    ##              school of biomedical                   school of brown 
+    ##                                 3                                 2 
+    ##               school of education              school of electronic 
+    ##                                 2                                 1 
+    ##            school of epidemiology                  school of health 
+    ##                                 6                                 1 
+    ##              school of immunology                     school of law 
     ##                                 1                                 1 
     ##                    school of life                school of medicine 
-    ##                                 1                               343 
+    ##                                 1                               369 
     ##                 school of natural                 school of nursing 
-    ##                                 1                                23 
+    ##                                 1                                43 
     ##                   school of ocean                school of pharmacy 
     ##                                 1                                 1 
     ##                school of physical           school of physiotherapy 
@@ -349,7 +357,7 @@ table(department)
     ##              school of population                  school of public 
     ##                                 2                                64 
     ##                  school of social          school of transportation 
-    ##                                11                                 1
+    ##                                31                                 1
 
 Question 5: Form a database which includes the title and the abstract of
 the papers.
@@ -380,12 +388,12 @@ database <- data.frame(
 knitr::kable(database[1:5,], caption = "Covid19 and Hawaii")
 ```
 
-| PubMedId | title                                                                                                              | Abstract                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-|:---------|:-------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 34621978 | GenoRisk: A polygenic risk score for Alzheimer’s disease.                                                          | Recent clinical trials are considering inclusion of more than just apolipoprotein E (APOE) e4 genotype as a way of reducing variability in analysis of outcomes. Case-control data were used to compare the capacity of age, sex, and 58 Alzheimer’s disease (AD)-associated single nucleotide polymorphisms (SNPs) to predict AD status using several statistical models. Model performance was assessed with Brier scores and tenfold cross-validation. Genotype and sex × age estimates from the best performing model were combined with age and intercept estimates from the general population to develop a personalized genetic risk score, termed age, and sex-adjusted GenoRisk. The elastic net model that included age, age x sex interaction, allelic APOE terms, and 29 additional SNPs performed the best. This model explained an additional 19% of the heritable risk compared to APOE genotype alone and achieved an area under the curve of 0.747. GenoRisk could improve the risk assessment of individuals identified for prevention studies. © 2021 The Authors. Alzheimer’s & Dementia: Diagnosis, Assessment & Disease Monitoring published by Wiley Periodicals, LLC on behalf of Alzheimer’s Association.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| 34562997 | Variables Associated with Coronavirus Disease 2019 Vaccine Hesitancy Amongst Patients with Neurological Disorders. | Given that the success of vaccines against coronavirus disease 2019 (COVID-19) relies on herd immunity, identifying patients at risk for vaccine hesitancy is imperative-particularly for those at high risk for severe COVID-19 (i.e., minorities and patients with neurological disorders). Among patients from a large neuroscience institute in Hawaii, vaccine hesitancy was investigated in relation to over 30 sociodemographic variables and medical comorbidities, via a telephone quality improvement survey conducted between 23 January 2021 and 13 February 2021. Vaccine willingness (n = 363) was 81.3%. Univariate analysis identified that the odds of vaccine acceptance reduced for patients who do not regard COVID-19 as a severe illness, are of younger age, have a lower Charlson Comorbidity Index, use illicit drugs, or carry Medicaid insurance. Multivariable logistic regression identified the best predictors of vaccine hesitancy to be: social media use to obtain COVID-19 information, concerns regarding vaccine safety, self-perception of a preexisting medical condition contraindicated with vaccination, not having received the annual influenza vaccine, having some high school education only, being a current smoker, and not having a prior cerebrovascular accident. Unique amongst males, a conservative political view strongly predicted vaccine hesitancy. Specifically for Asians, a higher body mass index, while for Native Hawaiians and other Pacific Islanders (NHPI), a positive depression screen, both reduced the odds of vaccine acceptance. Upon identifying the variables associated with vaccine hesitancy amongst patients with neurological disorders, our clinic is now able to efficiently provide ancillary COVID-19 education to sub-populations at risk for vaccine hesitancy. While our results may be limited to the sub-population of patients with neurological disorders, the findings nonetheless provide valuable insight to understanding vaccine hesitancy.                                                                                                                                                                                                                                                    |
-| 34559481 | Astronomical Use of Nitrous Oxide Associated With Stress From the COVID-19 Pandemic and Lockdown.                  | NA                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| 34545941 | Cancer statistics for the US Hispanic/Latino population, 2021.                                                     | The Hispanic/Latino population is the second largest racial/ethnic group in the continental United States and Hawaii, accounting for 18% (60.6 million) of the total population. An additional 3 million Hispanic Americans live in Puerto Rico. Every 3 years, the American Cancer Society reports on cancer occurrence, risk factors, and screening for Hispanic individuals in the United States using the most recent population-based data. An estimated 176,600 new cancer cases and 46,500 cancer deaths will occur among Hispanic individuals in the continental United States and Hawaii in 2021. Compared to non-Hispanic Whites (NHWs), Hispanic men and women had 25%-30% lower incidence (2014-2018) and mortality (2015-2019) rates for all cancers combined and lower rates for the most common cancers, although this gap is diminishing. For example, the colorectal cancer (CRC) incidence rate ratio for Hispanic compared with NHW individuals narrowed from 0.75 (95% CI, 0.73-0.78) in 1995 to 0.91 (95% CI, 0.89-0.93) in 2018, reflecting delayed declines in CRC rates among Hispanic individuals in part because of slower uptake of screening. In contrast, Hispanic individuals have higher rates of infection-related cancers, including approximately two-fold higher incidence of liver and stomach cancer. Cervical cancer incidence is 32% higher among Hispanic women in the continental US and Hawaii and 78% higher among women in Puerto Rico compared to NHW women, yet is largely preventable through screening. Less access to care may be similarly reflected in the low prevalence of localized-stage breast cancer among Hispanic women, 59% versus 67% among NHW women. Evidence-based strategies for decreasing the cancer burden among the Hispanic population include the use of culturally appropriate lay health advisors and patient navigators and targeted, community-based intervention programs to facilitate access to screening and promote healthy behaviors. In addition, the impact of the COVID-19 pandemic on cancer trends and disparities in the Hispanic population should be closely monitored. © 2021 The Authors. CA: A Cancer Journal for Clinicians published by Wiley Periodicals LLC on behalf of American Cancer Society. |
-| 34536350 | Addendum needed on COVID-19 travel study.                                                                          | NA                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| PubMedId | title                                                                                                                                        | Abstract                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+|:---------|:---------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 34704071 | Sugar-Sweetened Beverage Fee: A Model to Address Health Disparities in Hawai’i.                                                              | Sugar-sweetened beverage (SSB) consumption is associated with increased risk of obesity, diabetes, and other chronic diseases. SSB consumption is also a health equity issue, as rates of consumption and related chronic diseases vary by race, ethnicity, and income in Hawai’i. The COVID-19 pandemic has highlighted the need for greater investment in public health and the well-being of communities experiencing health disparities because individuals with chronic diseases are more likely to develop complications from the virus. It has also created economic hardships for the people of Hawai’i, especially the state’s most vulnerable populations. Amid this health and economic crisis, an opportunity exists to implement an SSB fee in Hawai’i. An SSB fee would impose a fee on SSB distributors that would be passed on to consumers in the form of price increases that influence purchasing behavior. Jurisdictions with SSB taxes or fees have seen reductions in SSB purchases and consumption and have generated millions of dollars in revenues to support health initiatives and reduce socioeconomic disparities. Models predict that a $0.02 SSB fee in Hawai’i could generate $60.5 million and significantly reduce healthcare costs and chronic diseases. This commentary will present an SSB fee policy as a viable model for Hawai’i to reduce SSB consumption, lower chronic disease risks, and generate needed revenues to support health, reduce inequities, and rebuild the state’s economy. ©Copyright 2021 by University Health Partners of Hawai‘i (UHP Hawai‘i).                                                                                                                                                                                                                                                                                                                                                                    |
+| 34704070 | Health Literate Hawai’i: A Blueprint to Empower Health and Wellbeing.                                                                        | Recent studies have identified high rates of chronic disease in Hawai’i’s adults and youth. As the state responds to the COVID-19 pandemic and looks beyond it, the prevention and management of chronic diseases are critical for community health and wellbeing. Low health literacy is more common in rural populations, Filipinos, and Pacific Islanders in Hawai’I, older adults, and many other groups with high rates of chronic disease. Promoting health literacy can reduce chronic disease burdens for individuals, families, and communities. Using the framework of the social-ecological model, which is important for visioning effective chronic disease management and prevention, this article provides a blueprint of layers of influence for building a health literate Hawai’I generally and around chronic disease specifically. The article will close with a call to action informed by the National Action Plan to Improve Health Literacy for stakeholders and providers to address health literacy in the state of Hawai’I in organizations, systems, and policy. These actions should address root causes of disease and help build more equitable health outcomes across the state now and in the future. ©Copyright 2021 by University Health Partners of Hawai‘i (UHP Hawai‘i).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 34704069 | He ’A’ali’i Ku Makani Mai Au: Developing a Cultural Framework for Advancing COVID-19 Related, Community-informed Health Policies.            | The Native Hawaiian and Pacific Islander community found itself on the front pages of national news when the COVID-19 pandemic struck the United States. By April 2020, the small, frequently overlooked community experienced the highest COVID-19 case rates in 5 states including Hawai’i. In response, Native Hawaiian and Pacific Islander networks across the US were mobilized to address the crisis. In Hawai’i, the Native Hawaiian Pacific Islander COVID-19 Response, Recovery, and Resilience Team was created. Framed by Indigenous Pacific based cultural values, protocols, and practices, the team consists of multiple committees that examine policy; testing, contract tracing, and isolation; communications; social supports and resources; and data and research. Inherent in this work are the shared core values of pono (righteousness, goodness), aloha (love, compassion), laulima (cooperation), and imua (moving forward with strength) as well as an ’ohana/aiga (family)-based, kuleana (responsibility)-centric approach that acknowledges, honors, and values ’ike kupuna (ancestral knowledge). With the burden of not only COVID-19 disparities, but also chronic diseases and socioeconomic disparities that place Native Hawaiian and Pacific Islander communities at increased risk for adverse impacts from COVID-19, an effective response is critical. This article, authored by members of the Team’s Policy Committee, discusses the development of a cultural framework that guides its advocacy efforts. The Policy Committee’s work presents a cultural framework that grounds and guides their efforts for effectively promoting a strong voice in governmental and agency policies which would ultimately contribute to a healthy and thriving Native Hawaiian and Pacific Islander community. ©Copyright 2021 by University Health Partners of Hawai‘i (UHP Hawai‘i).                                                           |
+| 34704068 | The Critical Role Hawai’i’s Community Health Workers Are Playing in COVID-19 Response Efforts.                                               | Community health workers play an instrumental role in the health care system and are critical partners in pandemic response. In Hawai’i, community health workers are working to reduce the burden of chronic disease among Pacific Islander, Filipino, and Native Hawaiian populations in partnership with government agencies and health care organizations. This commentary reviews the role community health workers in Hawai’i are playing in assisting with the COVID-19 response. Utilizing their skills and the community’s trust, they are optimally positioned to reach marginalized and vulnerable populations hit hardest by COVID-19; community health workers educate, screen, and provide social service referrals to community members. ©Copyright 2021 by University Health Partners of Hawai‘i (UHP Hawai‘i).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| 34704067 | Addressing Native Hawaiian and Pacific Islander Data Deficiencies Through a Community-based Collaborative Response to the COVID-19 Pandemic. | Early evidence of disproportionate COVID-19 infection and death rates in Native Hawaiian and Pacific Islander communities in the continental US raised concerns for similar disparities in Hawai’i, where these communities make up 25% of the state’s population. Representatives from more than 40 different government, academic, institutional and community-based organizations partnered to form the Hawai’i Native Hawaiian and Pacific Islander COVID-19 Response, Recovery, and Resilience Team. The team consists of 5 committees including the Data & Research Committee. This committee is tasked with examining issues regarding the acquisition, quality, public reporting, and utilization of race/ethnicity-related health data used to inform priorities and guide resource allocation. Problems addressed by this committee include: inconsistency across agencies in the use of race identifiers, defaulting to the Office of Management and Budget standards which aggregated Native Hawaiian and Pacific Islanders, and methods of data collection and reporting by the Department of Health. Outcomes include: 2 forms with race categories that reflect the population of Hawai’i; the reporting of disaggregated data by the Department of Health; and conversations with testing sites, laboratories, and health institutions urging a standardized form for race/ethnicity data collection. The collection and reporting of disaggregated race/ethnicity data is critical to guiding organizations in addressing underlying inequities in chronic disease and social determinants of health that can exacerbate the adverse effects of COVID-19. The Data and Research Committee’s network offers a community-based model for collaborative work that honors culture and ensures Native Hawaiian, Pacific Islander, and other minority populations are recognized and counted. ©Copyright 2021 by University Health Partners of Hawai‘i (UHP Hawai‘i). |
 
 Covid19 and Hawaii

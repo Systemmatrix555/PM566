@@ -1,0 +1,20 @@
+---
+title: "PM 566 HW 3"
+author: "Chris Hanson"
+date: "11/5/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. APIs
+
+Using the NCBI API, look for papers that show up under the term "sars-cov-2 trial vaccine." Look for the data in the pubmed databse, and then retrieve the details of the paper (as shown in lab 7). 
+
+```{r}
+
+```
+
+I found `r` papers.
