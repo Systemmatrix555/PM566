@@ -9,16 +9,15 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# 1. APIs
-
-Using the NCBI API, look for papers that show up under the term "sars-cov-2 trial vaccine." Look for the data in the pubmed database, and then retrieve the details of the paper (as shown in lab 7), including the pubmed ids.
-
 ```{r}
 library(httr)
 library(xml2)
 library(stringr)
 ```
 
+# 1. APIs
+
+Using the NCBI API, look for papers that show up under the term "sars-cov-2 trial vaccine." Look for the data in the pubmed database, and then retrieve the details of the paper (as shown in lab 7), including the pubmed ids.
 
 ```{r}
 
@@ -31,17 +30,72 @@ query_ids <- GET(
                retmax = 10000)
 )
 
-query_ids$status_code
-
 ids <- content(query_ids)
 
-ids_list  <- as_list(ids)
+#ids_list  <- as_list(ids)
 
-ids2 <- as.character(ids)
+ids <- as.character(ids)
 
-ids2 <- str_extract_all(ids2, "<Id>[[:digit:]]+</Id>")[[1]]
+ids <- str_extract_all(ids, "<Id>[[:digit:]]+</Id>")[[1]]
 
-ids2 <- str_remove_all(ids2, "<Id>|</Id>")
+ids <- str_remove_all(ids, "<Id>|</Id>")
 ```
 
 I found `r length(ids2)` papers.
+
+Using the list of Pubmed IDs retrieved, download each paper's details using the query parameter rettype = abstract. Keep just the first 250.
+
+```{r}
+publications <- GET(
+  url   = "https://eutils.ncbi.nlm.nih.gov/",
+  path = "entrez/eutils/efetch.fcgi",
+  query = list(
+    db = "pubmed",
+    id = I(paste(ids[1:250], collapse=",")),
+    retmax = 10000,
+    rettype = "abstract"
+    )
+)
+
+# Extracting the content of the results of GET into an XML object:
+publications <- httr::content(publications)
+
+# Turning this XML object into characters:
+publications_txt <- as.character(publications)
+```
+
+Create a dataset containing the following:
+- PubMed ID number
+- Title of the paper
+- Name of the journal where it was published
+- Publication date
+- Abstract of the paper
+
+```{r}
+pub_char_list <- xml_children(publications)
+pub_char_list <- sapply(pub_char_list, as.character)
+
+abstracts <- str_extract(pub_char_list, "<Abstract>[[:print:][:space:]]+</Abstract>")
+abstracts <- str_remove_all(abstracts, "</?[[:alnum:]- =\"]+.")
+abstracts <- str_replace_all(abstracts, "[[:space:]]+", " ")
+
+titles <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
+titles <- str_remove_all(titles, "</?[[:alnum:]- =\"]+>")
+
+journals <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
+journals <- str_remove_all(journals, "</?[[:alnum:]- =\"]+>")
+
+dates <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
+dates <- str_remove_all(dates, "</?[[:alnum:]- =\"]+>") 
+
+
+
+database <- data.frame(
+  PubMedId = ids[1:250],
+  Title    = titles,
+  Abstract = abstracts
+)
+knitr::kable(database[1:5,], caption = "Covid19 Vaccine Trial")
+
+```
+
