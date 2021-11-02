@@ -82,17 +82,21 @@ abstracts <- str_replace_all(abstracts, "[[:space:]]+", " ")
 titles <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
 titles <- str_remove_all(titles, "</?[[:alnum:]- =\"]+>")
 
-journals <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
+journals <- str_extract(pub_char_list, "<Journal>[[:print:][:space:]]+</Journal>")
 journals <- str_remove_all(journals, "</?[[:alnum:]- =\"]+>")
+journals <- str_replace_all(journals, "[[:space:]]+", " ")
 
-dates <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
-dates <- str_remove_all(dates, "</?[[:alnum:]- =\"]+>") 
-
+dates <- str_extract(pub_char_list, "<PubDate>[[:print:][:space:]]+</PubDate>")
+dates <- str_remove_all(dates, "</?[[:alnum:]- =\"]+>")
+dates <- str_replace_all(dates, "[[:space:]]+", " ")
+dates <- trimws(dates, which = c("both"))
+#dates <- as.Date(dates, "%Y %b %d")
 
 
 database <- data.frame(
   PubMedId = ids[1:250],
   Title    = titles,
+  Date     = dates,
   Abstract = abstracts
 )
 knitr::kable(database[1:5,], caption = "Covid19 Vaccine Trial")
