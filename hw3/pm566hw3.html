@@ -171,12 +171,12 @@ pre code {
 </div>
 
 
-<div id="apis" class="section level1">
-<h1>1. APIs</h1>
-<p>Using the NCBI API, look for papers that show up under the term “sars-cov-2 trial vaccine.” Look for the data in the pubmed database, and then retrieve the details of the paper (as shown in lab 7), including the pubmed ids.</p>
 <pre class="r"><code>library(httr)
 library(xml2)
 library(stringr)</code></pre>
+<div id="apis" class="section level1">
+<h1>1. APIs</h1>
+<p>Using the NCBI API, look for papers that show up under the term “sars-cov-2 trial vaccine.” Look for the data in the pubmed database, and then retrieve the details of the paper (as shown in lab 7), including the pubmed ids.</p>
 <pre class="r"><code># Accessing the PubMed database through the NCBI API and searching for &quot;sars-cov-2 trial  vaccine&quot;.  
 query_ids &lt;- GET(
   url = &quot;https://eutils.ncbi.nlm.nih.gov/&quot;,
@@ -186,18 +186,131 @@ query_ids &lt;- GET(
                retmax = 10000)
 )
 
-query_ids$status_code</code></pre>
-<pre><code>## [1] 200</code></pre>
-<pre class="r"><code>ids &lt;- content(query_ids)
+ids &lt;- content(query_ids)
 
-ids_list  &lt;- as_list(ids)
+#ids_list  &lt;- as_list(ids)
 
-ids2 &lt;- as.character(ids)
+ids &lt;- as.character(ids)
 
-ids2 &lt;- str_extract_all(ids2, &quot;&lt;Id&gt;[[:digit:]]+&lt;/Id&gt;&quot;)[[1]]
+ids &lt;- str_extract_all(ids, &quot;&lt;Id&gt;[[:digit:]]+&lt;/Id&gt;&quot;)[[1]]
 
-ids2 &lt;- str_remove_all(ids2, &quot;&lt;Id&gt;|&lt;/Id&gt;&quot;)</code></pre>
-<p>I found 1036 papers.</p>
+ids &lt;- str_remove_all(ids, &quot;&lt;Id&gt;|&lt;/Id&gt;&quot;)</code></pre>
+<p>I found 1041 papers.</p>
+<p>Using the list of Pubmed IDs retrieved, download each paper’s details using the query parameter rettype = abstract. Keep just the first 250.</p>
+<pre class="r"><code>publications &lt;- GET(
+  url   = &quot;https://eutils.ncbi.nlm.nih.gov/&quot;,
+  path = &quot;entrez/eutils/efetch.fcgi&quot;,
+  query = list(
+    db = &quot;pubmed&quot;,
+    id = I(paste(ids[1:250], collapse=&quot;,&quot;)),
+    retmax = 10000,
+    rettype = &quot;abstract&quot;
+    )
+)
+
+# Extracting the content of the results of GET into an XML object:
+publications &lt;- httr::content(publications)
+
+# Turning this XML object into characters:
+publications_txt &lt;- as.character(publications)</code></pre>
+<p>Create a dataset containing the following: - PubMed ID number - Title of the paper - Name of the journal where it was published - Publication date - Abstract of the paper</p>
+<pre class="r"><code>pub_char_list &lt;- xml_children(publications)
+pub_char_list &lt;- sapply(pub_char_list, as.character)
+
+abstracts &lt;- str_extract(pub_char_list, &quot;&lt;Abstract&gt;[[:print:][:space:]]+&lt;/Abstract&gt;&quot;)
+abstracts &lt;- str_remove_all(abstracts, &quot;&lt;/?[[:alnum:]- =\&quot;]+.&quot;)
+abstracts &lt;- str_replace_all(abstracts, &quot;[[:space:]]+&quot;, &quot; &quot;)
+
+titles &lt;- str_extract(pub_char_list, &quot;&lt;ArticleTitle&gt;[[:print:][:space:]]+&lt;/ArticleTitle&gt;&quot;)
+titles &lt;- str_remove_all(titles, &quot;&lt;/?[[:alnum:]- =\&quot;]+&gt;&quot;)
+
+journals &lt;- str_extract(pub_char_list, &quot;&lt;Title&gt;[[:print:][:space:]]+&lt;/Title&gt;&quot;)
+journals &lt;- str_remove_all(journals, &quot;&lt;/?[[:alnum:]- =\&quot;]+&gt;&quot;)
+
+#dates &lt;- str_extract(pub_char_list, &quot;&lt;PubDate&gt;[[:print:][:space:]]+&lt;/PubDate&gt;&quot;)
+dates &lt;- str_extract(pub_char_list, &quot;&lt;DateRevised&gt;[[:print:][:space:]]+&lt;/DateRevised&gt;&quot;)
+dates &lt;- str_remove_all(dates, &quot;&lt;/?[[:alnum:]- =\&quot;]+&gt;&quot;)
+dates &lt;- str_replace_all(dates, &quot;[[:space:]]+&quot;, &quot; &quot;)
+dates &lt;- trimws(dates, which = c(&quot;both&quot;))
+dates &lt;- format(as.Date(dates, &quot;%Y %m %d&quot;), &quot;%m/%d/%Y&quot;)
+dates[1:50]</code></pre>
+<pre><code>##  [1] &quot;11/02/2021&quot; &quot;10/29/2021&quot; &quot;11/01/2021&quot; &quot;10/29/2021&quot; &quot;10/28/2021&quot;
+##  [6] &quot;11/02/2021&quot; &quot;10/26/2021&quot; &quot;10/27/2021&quot; &quot;10/27/2021&quot; &quot;10/29/2021&quot;
+## [11] &quot;10/29/2021&quot; &quot;10/29/2021&quot; &quot;11/02/2021&quot; &quot;11/02/2021&quot; &quot;10/25/2021&quot;
+## [16] &quot;10/28/2021&quot; &quot;11/01/2021&quot; &quot;10/24/2021&quot; &quot;10/28/2021&quot; &quot;10/28/2021&quot;
+## [21] &quot;10/26/2021&quot; &quot;10/26/2021&quot; &quot;10/20/2021&quot; &quot;10/22/2021&quot; &quot;11/02/2021&quot;
+## [26] &quot;11/02/2021&quot; &quot;10/19/2021&quot; &quot;10/26/2021&quot; &quot;10/23/2021&quot; &quot;10/23/2021&quot;
+## [31] &quot;10/14/2021&quot; &quot;11/02/2021&quot; &quot;10/20/2021&quot; &quot;10/15/2021&quot; &quot;10/15/2021&quot;
+## [36] &quot;11/01/2021&quot; &quot;10/20/2021&quot; &quot;10/12/2021&quot; &quot;11/02/2021&quot; &quot;10/08/2021&quot;
+## [41] &quot;10/19/2021&quot; &quot;10/13/2021&quot; &quot;10/20/2021&quot; &quot;10/09/2021&quot; &quot;10/08/2021&quot;
+## [46] &quot;10/11/2021&quot; &quot;10/28/2021&quot; &quot;10/11/2021&quot; &quot;10/27/2021&quot; &quot;09/30/2021&quot;</code></pre>
+<pre class="r"><code>#dates &lt;- as.Date(dates, &quot;%Y %b %d&quot;)
+
+
+database &lt;- data.frame(
+  PubMedId = ids[1:250],
+  Title    = titles,
+  Journal  = journals,
+  Date     = dates,
+  Abstract = abstracts
+)
+knitr::kable(database[1:5,], caption = &quot;Covid19 Vaccine Trial&quot;)</code></pre>
+<table>
+<caption>Covid19 Vaccine Trial</caption>
+<colgroup>
+<col width="0%" />
+<col width="5%" />
+<col width="1%" />
+<col width="0%" />
+<col width="92%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">PubMedId</th>
+<th align="left">Title</th>
+<th align="left">Journal</th>
+<th align="left">Date</th>
+<th align="left">Abstract</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">34726743</td>
+<td align="left">Analysis of the Effectiveness of the Ad26.COV2.S Adenoviral Vector Vaccine for Preventing COVID-19.</td>
+<td align="left">JAMA network open</td>
+<td align="left">11/02/2021</td>
+<td align="left">Continuous assessment of the effectiveness and safety of the US Food and Drug Administration-authorized SARS-CoV-2 vaccines is critical to amplify transparency, build public trust, and ultimately improve overall health outcomes. To evaluate the effectiveness of the Johnson &amp; Johnson Ad26.COV2.S vaccine for preventing SARS-CoV-2 infection. Setting, and Participants&quot; NlmCategory=“UNASSIGNED”&gt;This comparative effectiveness research study used large-scale longitudinal curation of electronic health records from the multistate Mayo Clinic Health System (Minnesota, Arizona, Florida, Wisconsin, and Iowa) to identify vaccinated and unvaccinated adults between February 27 and July 22, 2021. The unvaccinated cohort was matched on a propensity score derived from age, sex, zip code, race, ethnicity, and previous number of SARS-CoV-2 polymerase chain reaction tests. The final study cohort consisted of 8889 patients in the vaccinated group and 88 898 unvaccinated matched patients. Single dose of the Ad26.COV2.S vaccine. The incidence rate ratio of SARS-CoV-2 infection in the vaccinated vs unvaccinated control cohorts, measured by SARS-CoV-2 polymerase chain reaction testing. The study was composed of 8889 vaccinated patients (4491 men [50.5%]; mean [SD] age, 52.4 [16.9] years) and 88 898 unvaccinated patients (44 748 men [50.3%]; mean [SD] age, 51.7 [16.7] years). The incidence rate ratio of SARS-CoV-2 infection in the vaccinated vs unvaccinated control cohorts was 0.26 (95% CI, 0.20-0.34) (60 of 8889 vaccinated patients vs 2236 of 88 898 unvaccinated individuals), which corresponds to an effectiveness of 73.6% (95% CI, 65.9%-79.9%) and a 3.73-fold reduction in SARS-CoV-2 infections. This study’s findings are consistent with the clinical trial-reported efficacy of Ad26.COV2.S and the first retrospective analysis, suggesting that the vaccine is effective at reducing SARS-CoV-2 infection, even with the spread of variants such as Alpha or Delta that were not present in the original studies, and reaffirm the urgent need to continue mass vaccination efforts globally.</td>
+</tr>
+<tr class="even">
+<td align="left">34713912</td>
+<td align="left">Vaccine development and technology for SARS-CoV-2: current insights.</td>
+<td align="left">Journal of medical virology</td>
+<td align="left">10/29/2021</td>
+<td align="left">SARS-CoV-2 is associated to a severe respiratory disease in China, that rapidly spread across continents. Since the beginning of the pandemic, available data suggested the asymptomatic transmission and patients were treated with specific drugs with efficacy and safety data not always satisfactory. The aim of this review is to describe the vaccines developed by three companies, Pfizer-BioNTech, Moderna and University of Oxford/AstraZeneca, in terms of both technological and pharmaceutical formulation, safety, efficacy and immunogenicity. A critical analysis of phase 1, 2 and 3 clinical trial results available was conducted, comparing the three vaccine candidates, underlining their similarities and differences. All candidates showed consistent efficacy and tolerability; although some differences can be noted, such as their technological formulation, temperature storage, which will be related to logistics and costs. Further studies will be necessary to evaluate long-term effects and to assess the vaccine safety and efficacy in the general population. This article is protected by copyright. All rights reserved. This article is protected by copyright. All rights reserved.</td>
+</tr>
+<tr class="odd">
+<td align="left">34711598</td>
+<td align="left">BCG vaccination to reduce the impact of COVID-19 in healthcare workers: Protocol for a randomised controlled trial (BRACE trial).</td>
+<td align="left">BMJ open</td>
+<td align="left">11/01/2021</td>
+<td align="left">BCG vaccination modulates immune responses to unrelated pathogens. This off-target effect could reduce the impact of emerging pathogens. As a readily available, inexpensive intervention that has a well-established safety profile, BCG is a good candidate for protecting healthcare workers (HCWs) and other vulnerable groups against COVID-19. This international multicentre phase III randomised controlled trial aims to determine if BCG vaccination reduces the incidence of symptomatic and severe COVID-19 at 6 months (co-primary outcomes) compared with no BCG vaccination. We plan to randomise 10 078 HCWs from Australia, The Netherlands, Spain, the UK and Brazil in a 1:1 ratio to BCG vaccination or no BCG (control group). The participants will be followed for 1 year with questionnaires and collection of blood samples. For any episode of illness, clinical details will be collected daily, and the participant will be tested for SARS-CoV-2 infection. The secondary objectives are to determine if BCG vaccination reduces the rate, incidence, and severity of any febrile or respiratory illness (including SARS-CoV-2), as well as work absenteeism. The safety of BCG vaccination in HCWs will also be evaluated. Immunological analyses will assess changes in the immune system following vaccination, and identify factors associated with susceptibility to or protection against SARS-CoV-2 and other infections. Ethical and governance approval will be obtained from participating sites. Results will be published in peer-reviewed open-access journals. The final cleaned and locked database will be deposited in a data sharing repository archiving system. ClinicalTrials.gov NCT04327206. © Author(s) (or their employer(s)) 2021. Re-use permitted under CC BY. Published by BMJ.</td>
+</tr>
+<tr class="even">
+<td align="left">34704204</td>
+<td align="left">COVID-19 Testing and Vaccine Acceptability Among Homeless-Experienced Adults: Qualitative Data from Two Samples.</td>
+<td align="left">Journal of general internal medicine</td>
+<td align="left">10/29/2021</td>
+<td align="left">Homeless-experienced populations are at increased risk of exposure to SARS-CoV-2 due to their living environments and face an increased risk of severe COVID-19 disease due to underlying health conditions. Little is known about COVID-19 testing and vaccination acceptability among homeless-experienced populations. To understand the facilitators and barriers to COVID-19 testing and vaccine acceptability among homeless-experienced adults. We conducted in-depth interviews with participants from July to October 2020. We purposively recruited participants from (1) a longitudinal cohort of homeless-experienced older adults in Oakland, CA (n=37) and (2) a convenience sample of people (n=57) during a mobile outreach COVID-19 testing event in San Francisco. Adults with current or past experience of homelessness. We asked participants about their experiences with and attitudes towards COVID-19 testing and their perceptions of COVID-19 vaccinations. We used participant observation techniques to document the interactions between testing teams and those approached for testing. We audio-recorded, transcribed, and content analyzed all interviews and identified major themes and subthemes. Participants found incentivized COVID-19 testing administered in unsheltered settings and supported by community health outreach workers (CHOWs) to be acceptable. The majority of participants expressed a positive inclination toward vaccine acceptability, citing a desire to return to routine life and civic responsibility. Those who expressed hesitancy cited a desire to see trial data, concerns that vaccines included infectious materials, and mistrust of the government. Participants expressed positive evaluations of the incentivized, mobile COVID-19 testing supported by CHOWs in unsheltered settings. The majority of participants expressed a positive inclination toward vaccination. Vaccine hesitancy concerns must be addressed when designing vaccine delivery strategies that overcome access challenges. Based on the successful implementation of COVID-19 testing, we recommend mobile delivery of vaccines using trusted CHOWs to address concerns and facilitate wider access to and uptake of the COVID vaccine. © 2021. Society of General Internal Medicine.</td>
+</tr>
+<tr class="odd">
+<td align="left">34703690</td>
+<td align="left">A Rare Variant of Guillain-Barre Syndrome Following Ad26.COV2.S Vaccination.</td>
+<td align="left">Cureus</td>
+<td align="left">10/28/2021</td>
+<td align="left">Efforts to combat the global pandemic caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2) range from adequate diagnostic testing and contract tracing to vaccination for the prevention of coronavirus disease 2019 (COVID-19). In the United States alone, three vaccinations have been authorized for emergency use (EUA) or approved to prevent COVID-19. The Ad26.COV2.S vaccine by Johnson and Johnson (New Brunswick, New Jersey) is the only adenovirus-based vaccine and deemed relatively effective and safe by the US Food and Drug Administration (FDA) following its clinical trial. Since its introduction, the US FDA has placed a warning on the vaccine adverse event reporting system (VAERS) after more than 100 cases of Guillain-Barre Syndrome (GBS) were reported. Herein, we outline the hospital course of a generally healthy 49-year-old female who experienced an axonal form of GBS nine days after receiving the Ad26.COV2.S vaccine. Copyright © 2021, Morehouse et al.</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 

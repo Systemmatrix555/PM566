@@ -13,6 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(httr)
 library(xml2)
 library(stringr)
+library(tidyverse)
+library(data.table)
 ```
 
 # 1. APIs
@@ -41,7 +43,7 @@ ids <- str_extract_all(ids, "<Id>[[:digit:]]+</Id>")[[1]]
 ids <- str_remove_all(ids, "<Id>|</Id>")
 ```
 
-I found `r length(ids2)` papers.
+I found `r length(ids)` papers.
 
 Using the list of Pubmed IDs retrieved, download each paper's details using the query parameter rettype = abstract. Keep just the first 250.
 
@@ -82,24 +84,40 @@ abstracts <- str_replace_all(abstracts, "[[:space:]]+", " ")
 titles <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
 titles <- str_remove_all(titles, "</?[[:alnum:]- =\"]+>")
 
-journals <- str_extract(pub_char_list, "<Journal>[[:print:][:space:]]+</Journal>")
+journals <- str_extract(pub_char_list, "<Title>[[:print:][:space:]]+</Title>")
 journals <- str_remove_all(journals, "</?[[:alnum:]- =\"]+>")
-journals <- str_replace_all(journals, "[[:space:]]+", " ")
 
-dates <- str_extract(pub_char_list, "<PubDate>[[:print:][:space:]]+</PubDate>")
+#dates <- str_extract(pub_char_list, "<PubDate>[[:print:][:space:]]+</PubDate>")
+dates <- str_extract(pub_char_list, "<DateRevised>[[:print:][:space:]]+</DateRevised>")
 dates <- str_remove_all(dates, "</?[[:alnum:]- =\"]+>")
 dates <- str_replace_all(dates, "[[:space:]]+", " ")
 dates <- trimws(dates, which = c("both"))
+dates <- format(as.Date(dates, "%Y %m %d"), "%m/%d/%Y")
+dates[1:50]
 #dates <- as.Date(dates, "%Y %b %d")
 
 
 database <- data.frame(
   PubMedId = ids[1:250],
   Title    = titles,
+  Journal  = journals,
   Date     = dates,
   Abstract = abstracts
 )
 knitr::kable(database[1:5,], caption = "Covid19 Vaccine Trial")
+```
+
+# 2. Text Mining
+
+A dataset from the course data repository contains 3241 abstracts from articles across 5 search terms. Analyse these abstracts to find interesting insights.
+
+Tokenize the abstracts and count the number of each token. 
+
+```{r}
+# Importing the dataset 
+mining_abstracts <- fread("pubmed.csv")
+mining_abstracts <- read_csv("pubmed.csv")
+mining_abstracts <- read.csv("pubmed.csv")
 
 ```
 
