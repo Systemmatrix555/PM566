@@ -15,6 +15,8 @@ library(xml2)
 library(stringr)
 library(tidyverse)
 library(data.table)
+library(tidytext)
+library(ggplot2)
 ```
 
 # 1. APIs
@@ -115,9 +117,137 @@ Tokenize the abstracts and count the number of each token.
 
 ```{r}
 # Importing the dataset 
-mining_abstracts <- fread("pubmed.csv")
 mining_abstracts <- read_csv("pubmed.csv")
-mining_abstracts <- read.csv("pubmed.csv")
+mining_abstracts <- as_tibble(mining_abstracts)
 
+terms <- mining_abstracts %>%
+  count(term)
+
+terms %>%
+  arrange(desc(n)) %>%
+  knitr::kable()
+
+# Tokenize the abstracts and count the number of each token.
+
+# All abstracts, with stop words
+mining_abstracts %>%
+  unnest_tokens(output = word, input = abstract) %>%
+  count(word, sort = TRUE) %>%
+  top_n(20) %>%
+  knitr::kable()
+
+# All abstracts, remove stop words
+
+mining_abstracts %>%
+  unnest_tokens(output = word, input = abstract) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
+  top_n(50) %>%
+  knitr::kable()
+
+# Covid abstracts, stop words and numbers removed
+
+mining_abstracts %>%
+  filter(term == "covid") %>%
+  unnest_tokens(output = word, input = abstract) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
+  top_n(5) %>%
+  knitr::kable()
+
+# Cystic fibrosis abstracts, stop words and numbers removed
+
+mining_abstracts %>%
+  filter(term == "cystic fibrosis") %>%
+  unnest_tokens(output = word, input = abstract) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
+  top_n(5) %>%
+  knitr::kable()
+
+# Meningitis abstracts, stop words and numbers removed
+
+mining_abstracts %>%
+  filter(term == "meningitis") %>%
+  unnest_tokens(output = word, input = abstract) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
+  top_n(5) %>%
+  knitr::kable()
+
+# Preeclampsia abstracts, stop words and numbers removed
+
+mining_abstracts %>%
+  filter(term == "preeclampsia") %>%
+  unnest_tokens(output = word, input = abstract) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
+  top_n(5) %>%
+  knitr::kable()
+
+# Prostate cancer abstracts, stop words and numbers removed
+
+mining_abstracts %>%
+  filter(term == "prostate cancer") %>%
+  unnest_tokens(output = word, input = abstract) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
+  top_n(5) %>%
+  knitr::kable()
+```
+
+Tokenize the abstracts into bigrams. Find the 10 most common bigrams and visualize them with ggplot2.
+
+```{r}
+mining_abstracts %>%
+  unnest_ngrams(output = bigram, input = abstract, n = 2) %>%
+  count(bigram, sort = TRUE) %>%
+  top_n(10) %>%
+  ggplot(aes(x = n, y = fct_reorder(bigram, n))) +
+  geom_col()
+```
+
+Calculate the TF-IDF value for each word-search term combination (the search term is the "document"). What are the 5 tokens from each search term with the highest TF-IDF value? How are the results different from the answers from question 1?
+
+(TF-IDF is term frequency x inverse document frequency, it's a measure of how unique a term is to a single document)
+
+```{r}
+
+tfidf <- mining_abstracts %>%
+  unnest_tokens(output = word, input = abstract) %>%
+  count(word, term) %>%
+  bind_tf_idf(word, term, n) %>%
+  arrange(desc(tf_idf))
+
+tfidf %>%
+  filter(term == "covid") %>%
+  top_n(5) %>%
+  knitr::kable()
+
+tfidf %>%
+  filter(term == "cystic fibrosis") %>%
+  top_n(5) %>%
+  knitr::kable()
+
+tfidf %>%
+  filter(term == "meningitis") %>%
+  top_n(5) %>%
+  knitr::kable()
+
+tfidf %>%
+  filter(term == "preeclampsia") %>%
+  top_n(5) %>%
+  knitr::kable()
+
+tfidf %>%
+  filter(term == "prostate cancer") %>%
+  top_n(5) %>%
+  knitr::kable()
 ```
 
