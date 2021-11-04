@@ -173,10 +173,15 @@ pre code {
 
 <pre class="r"><code>library(httr)
 library(xml2)
-library(stringr)</code></pre>
+library(stringr)
+library(tidyverse)
+library(data.table)
+library(tidytext)
+library(ggplot2)</code></pre>
 <div id="apis" class="section level1">
 <h1>1. APIs</h1>
-<p>Using the NCBI API, look for papers that show up under the term “sars-cov-2 trial vaccine.” Look for the data in the pubmed database, and then retrieve the details of the paper (as shown in lab 7), including the pubmed ids.</p>
+<div id="using-the-ncbi-api-look-for-papers-that-show-up-under-the-term-sars-cov-2-trial-vaccine.-look-for-the-data-in-the-pubmed-database-and-then-retrieve-the-details-of-the-paper-as-shown-in-lab-7-including-the-pubmed-ids." class="section level3">
+<h3>Using the NCBI API, look for papers that show up under the term “sars-cov-2 trial vaccine.” Look for the data in the PubMed database, and then retrieve the details of the paper (as shown in lab 7), including the PubMed IDs.</h3>
 <pre class="r"><code># Accessing the PubMed database through the NCBI API and searching for &quot;sars-cov-2 trial  vaccine&quot;.  
 query_ids &lt;- GET(
   url = &quot;https://eutils.ncbi.nlm.nih.gov/&quot;,
@@ -187,8 +192,6 @@ query_ids &lt;- GET(
 )
 
 ids &lt;- content(query_ids)
-
-#ids_list  &lt;- as_list(ids)
 
 ids &lt;- as.character(ids)
 
@@ -213,7 +216,12 @@ publications &lt;- httr::content(publications)
 
 # Turning this XML object into characters:
 publications_txt &lt;- as.character(publications)</code></pre>
-<p>Create a dataset containing the following: - PubMed ID number - Title of the paper - Name of the journal where it was published - Publication date - Abstract of the paper</p>
+<p>Create a dataset containing the following:</p>
+<p>PubMed ID number</p>
+<p>Title of the paper</p>
+<p>Name of the journal where it was published</p>
+<p>Publication date</p>
+<p>Abstract of the paper</p>
 <pre class="r"><code>pub_char_list &lt;- xml_children(publications)
 pub_char_list &lt;- sapply(pub_char_list, as.character)
 
@@ -233,18 +241,7 @@ dates &lt;- str_remove_all(dates, &quot;&lt;/?[[:alnum:]- =\&quot;]+&gt;&quot;)
 dates &lt;- str_replace_all(dates, &quot;[[:space:]]+&quot;, &quot; &quot;)
 dates &lt;- trimws(dates, which = c(&quot;both&quot;))
 dates &lt;- format(as.Date(dates, &quot;%Y %m %d&quot;), &quot;%m/%d/%Y&quot;)
-dates[1:50]</code></pre>
-<pre><code>##  [1] &quot;11/02/2021&quot; &quot;10/29/2021&quot; &quot;11/01/2021&quot; &quot;10/29/2021&quot; &quot;10/28/2021&quot;
-##  [6] &quot;11/02/2021&quot; &quot;10/26/2021&quot; &quot;10/27/2021&quot; &quot;10/27/2021&quot; &quot;10/29/2021&quot;
-## [11] &quot;10/29/2021&quot; &quot;10/29/2021&quot; &quot;11/02/2021&quot; &quot;11/02/2021&quot; &quot;10/25/2021&quot;
-## [16] &quot;10/28/2021&quot; &quot;11/01/2021&quot; &quot;10/24/2021&quot; &quot;10/28/2021&quot; &quot;10/28/2021&quot;
-## [21] &quot;10/26/2021&quot; &quot;10/26/2021&quot; &quot;10/20/2021&quot; &quot;10/22/2021&quot; &quot;11/02/2021&quot;
-## [26] &quot;11/02/2021&quot; &quot;10/19/2021&quot; &quot;10/26/2021&quot; &quot;10/23/2021&quot; &quot;10/23/2021&quot;
-## [31] &quot;10/14/2021&quot; &quot;11/02/2021&quot; &quot;10/20/2021&quot; &quot;10/15/2021&quot; &quot;10/15/2021&quot;
-## [36] &quot;11/01/2021&quot; &quot;10/20/2021&quot; &quot;10/12/2021&quot; &quot;11/02/2021&quot; &quot;10/08/2021&quot;
-## [41] &quot;10/19/2021&quot; &quot;10/13/2021&quot; &quot;10/20/2021&quot; &quot;10/09/2021&quot; &quot;10/08/2021&quot;
-## [46] &quot;10/11/2021&quot; &quot;10/28/2021&quot; &quot;10/11/2021&quot; &quot;10/27/2021&quot; &quot;09/30/2021&quot;</code></pre>
-<pre class="r"><code>#dates &lt;- as.Date(dates, &quot;%Y %b %d&quot;)
+
 
 
 database &lt;- data.frame(
@@ -278,7 +275,7 @@ knitr::kable(database[1:5,], caption = &quot;Covid19 Vaccine Trial&quot;)</code>
 <td align="left">34726743</td>
 <td align="left">Analysis of the Effectiveness of the Ad26.COV2.S Adenoviral Vector Vaccine for Preventing COVID-19.</td>
 <td align="left">JAMA network open</td>
-<td align="left">11/02/2021</td>
+<td align="left">11/03/2021</td>
 <td align="left">Continuous assessment of the effectiveness and safety of the US Food and Drug Administration-authorized SARS-CoV-2 vaccines is critical to amplify transparency, build public trust, and ultimately improve overall health outcomes. To evaluate the effectiveness of the Johnson &amp; Johnson Ad26.COV2.S vaccine for preventing SARS-CoV-2 infection. Setting, and Participants&quot; NlmCategory=“UNASSIGNED”&gt;This comparative effectiveness research study used large-scale longitudinal curation of electronic health records from the multistate Mayo Clinic Health System (Minnesota, Arizona, Florida, Wisconsin, and Iowa) to identify vaccinated and unvaccinated adults between February 27 and July 22, 2021. The unvaccinated cohort was matched on a propensity score derived from age, sex, zip code, race, ethnicity, and previous number of SARS-CoV-2 polymerase chain reaction tests. The final study cohort consisted of 8889 patients in the vaccinated group and 88 898 unvaccinated matched patients. Single dose of the Ad26.COV2.S vaccine. The incidence rate ratio of SARS-CoV-2 infection in the vaccinated vs unvaccinated control cohorts, measured by SARS-CoV-2 polymerase chain reaction testing. The study was composed of 8889 vaccinated patients (4491 men [50.5%]; mean [SD] age, 52.4 [16.9] years) and 88 898 unvaccinated patients (44 748 men [50.3%]; mean [SD] age, 51.7 [16.7] years). The incidence rate ratio of SARS-CoV-2 infection in the vaccinated vs unvaccinated control cohorts was 0.26 (95% CI, 0.20-0.34) (60 of 8889 vaccinated patients vs 2236 of 88 898 unvaccinated individuals), which corresponds to an effectiveness of 73.6% (95% CI, 65.9%-79.9%) and a 3.73-fold reduction in SARS-CoV-2 infections. This study’s findings are consistent with the clinical trial-reported efficacy of Ad26.COV2.S and the first retrospective analysis, suggesting that the vaccine is effective at reducing SARS-CoV-2 infection, even with the spread of variants such as Alpha or Delta that were not present in the original studies, and reaffirm the urgent need to continue mass vaccination efforts globally.</td>
 </tr>
 <tr class="even">
@@ -292,7 +289,7 @@ knitr::kable(database[1:5,], caption = &quot;Covid19 Vaccine Trial&quot;)</code>
 <td align="left">34711598</td>
 <td align="left">BCG vaccination to reduce the impact of COVID-19 in healthcare workers: Protocol for a randomised controlled trial (BRACE trial).</td>
 <td align="left">BMJ open</td>
-<td align="left">11/01/2021</td>
+<td align="left">11/03/2021</td>
 <td align="left">BCG vaccination modulates immune responses to unrelated pathogens. This off-target effect could reduce the impact of emerging pathogens. As a readily available, inexpensive intervention that has a well-established safety profile, BCG is a good candidate for protecting healthcare workers (HCWs) and other vulnerable groups against COVID-19. This international multicentre phase III randomised controlled trial aims to determine if BCG vaccination reduces the incidence of symptomatic and severe COVID-19 at 6 months (co-primary outcomes) compared with no BCG vaccination. We plan to randomise 10 078 HCWs from Australia, The Netherlands, Spain, the UK and Brazil in a 1:1 ratio to BCG vaccination or no BCG (control group). The participants will be followed for 1 year with questionnaires and collection of blood samples. For any episode of illness, clinical details will be collected daily, and the participant will be tested for SARS-CoV-2 infection. The secondary objectives are to determine if BCG vaccination reduces the rate, incidence, and severity of any febrile or respiratory illness (including SARS-CoV-2), as well as work absenteeism. The safety of BCG vaccination in HCWs will also be evaluated. Immunological analyses will assess changes in the immune system following vaccination, and identify factors associated with susceptibility to or protection against SARS-CoV-2 and other infections. Ethical and governance approval will be obtained from participating sites. Results will be published in peer-reviewed open-access journals. The final cleaned and locked database will be deposited in a data sharing repository archiving system. ClinicalTrials.gov NCT04327206. © Author(s) (or their employer(s)) 2021. Re-use permitted under CC BY. Published by BMJ.</td>
 </tr>
 <tr class="even">
@@ -311,6 +308,676 @@ knitr::kable(database[1:5,], caption = &quot;Covid19 Vaccine Trial&quot;)</code>
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+<div id="text-mining" class="section level1">
+<h1>2. Text Mining</h1>
+<div id="a-dataset-from-the-course-data-repository-contains-3241-abstracts-from-articles-across-5-search-terms.-analyse-these-abstracts-to-find-interesting-insights." class="section level3">
+<h3>A dataset from the course data repository contains 3241 abstracts from articles across 5 search terms. Analyse these abstracts to find interesting insights.</h3>
+<p>Tokenize the abstracts and count the number of each token.</p>
+<pre class="r"><code># Importing the dataset 
+mining_abstracts &lt;- read_csv(&quot;pubmed.csv&quot;)
+mining_abstracts &lt;- as_tibble(mining_abstracts)
+
+# Discovering the 5 topics of the abstracts provided
+terms &lt;- mining_abstracts %&gt;%
+  count(term) %&gt;%
+  arrange(desc(n))
+
+# Tokenize the abstracts and count the number of each token--------------------
+
+# All abstracts, stop words not removed
+mining_abstracts %&gt;%
+  unnest_tokens(output = word, input = abstract) %&gt;%
+  count(word, sort = TRUE) %&gt;%
+  top_n(10) %&gt;%
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">the</td>
+<td align="right">28126</td>
+</tr>
+<tr class="even">
+<td align="left">of</td>
+<td align="right">24760</td>
+</tr>
+<tr class="odd">
+<td align="left">and</td>
+<td align="right">19993</td>
+</tr>
+<tr class="even">
+<td align="left">in</td>
+<td align="right">14653</td>
+</tr>
+<tr class="odd">
+<td align="left">to</td>
+<td align="right">10920</td>
+</tr>
+<tr class="even">
+<td align="left">a</td>
+<td align="right">8245</td>
+</tr>
+<tr class="odd">
+<td align="left">with</td>
+<td align="right">8038</td>
+</tr>
+<tr class="even">
+<td align="left">covid</td>
+<td align="right">7275</td>
+</tr>
+<tr class="odd">
+<td align="left">19</td>
+<td align="right">7080</td>
+</tr>
+<tr class="even">
+<td align="left">is</td>
+<td align="right">5649</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># All abstracts, stop words and numbers removed
+tokens &lt;- mining_abstracts %&gt;%
+  unnest_tokens(output = word, input = abstract) %&gt;%
+  count(word, sort = TRUE) %&gt;%
+  anti_join(stop_words, by = &quot;word&quot;) %&gt;%
+  filter(!grepl(pattern = &quot;^[0-9]+$&quot;, x = word))
+  
+tokens %&gt;%  
+  top_n(10) %&gt;%
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">covid</td>
+<td align="right">7275</td>
+</tr>
+<tr class="even">
+<td align="left">patients</td>
+<td align="right">4674</td>
+</tr>
+<tr class="odd">
+<td align="left">cancer</td>
+<td align="right">3999</td>
+</tr>
+<tr class="even">
+<td align="left">prostate</td>
+<td align="right">3832</td>
+</tr>
+<tr class="odd">
+<td align="left">disease</td>
+<td align="right">2574</td>
+</tr>
+<tr class="even">
+<td align="left">pre</td>
+<td align="right">2165</td>
+</tr>
+<tr class="odd">
+<td align="left">eclampsia</td>
+<td align="right">2005</td>
+</tr>
+<tr class="even">
+<td align="left">preeclampsia</td>
+<td align="right">1863</td>
+</tr>
+<tr class="odd">
+<td align="left">treatment</td>
+<td align="right">1841</td>
+</tr>
+<tr class="even">
+<td align="left">clinical</td>
+<td align="right">1682</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Tokenizing per search term----------------------------------------------------
+
+tokens2 &lt;- mining_abstracts %&gt;%
+  unnest_tokens(output = word, input = abstract) %&gt;%
+  count(word, term, sort = TRUE) %&gt;%
+  anti_join(stop_words, by = &quot;word&quot;) %&gt;%
+  filter(!grepl(pattern = &quot;^[0-9]+$&quot;, x = word))
+
+# Covid abstracts
+tokens2 %&gt;%
+  filter(term == &quot;covid&quot;) %&gt;%
+  top_n(5) %&gt;%
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="left">term</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">covid</td>
+<td align="left">covid</td>
+<td align="right">7275</td>
+</tr>
+<tr class="even">
+<td align="left">patients</td>
+<td align="left">covid</td>
+<td align="right">2293</td>
+</tr>
+<tr class="odd">
+<td align="left">disease</td>
+<td align="left">covid</td>
+<td align="right">943</td>
+</tr>
+<tr class="even">
+<td align="left">pandemic</td>
+<td align="left">covid</td>
+<td align="right">800</td>
+</tr>
+<tr class="odd">
+<td align="left">coronavirus</td>
+<td align="left">covid</td>
+<td align="right">647</td>
+</tr>
+<tr class="even">
+<td align="left">health</td>
+<td align="left">covid</td>
+<td align="right">647</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Cystic fibrosis abstracts
+tokens2 %&gt;%
+  filter(term == &quot;cystic fibrosis&quot;) %&gt;%
+  top_n(5) %&gt;%
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="left">term</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">fibrosis</td>
+<td align="left">cystic fibrosis</td>
+<td align="right">867</td>
+</tr>
+<tr class="even">
+<td align="left">cystic</td>
+<td align="left">cystic fibrosis</td>
+<td align="right">862</td>
+</tr>
+<tr class="odd">
+<td align="left">cf</td>
+<td align="left">cystic fibrosis</td>
+<td align="right">625</td>
+</tr>
+<tr class="even">
+<td align="left">patients</td>
+<td align="left">cystic fibrosis</td>
+<td align="right">586</td>
+</tr>
+<tr class="odd">
+<td align="left">disease</td>
+<td align="left">cystic fibrosis</td>
+<td align="right">400</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Meningitis abstracts
+tokens2 %&gt;%
+  filter(term == &quot;meningitis&quot;) %&gt;%
+  top_n(5) %&gt;%
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="left">term</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">patients</td>
+<td align="left">meningitis</td>
+<td align="right">446</td>
+</tr>
+<tr class="even">
+<td align="left">meningitis</td>
+<td align="left">meningitis</td>
+<td align="right">429</td>
+</tr>
+<tr class="odd">
+<td align="left">meningeal</td>
+<td align="left">meningitis</td>
+<td align="right">219</td>
+</tr>
+<tr class="even">
+<td align="left">csf</td>
+<td align="left">meningitis</td>
+<td align="right">206</td>
+</tr>
+<tr class="odd">
+<td align="left">clinical</td>
+<td align="left">meningitis</td>
+<td align="right">187</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Preeclampsia abstracts
+tokens2 %&gt;%
+  filter(term == &quot;preeclampsia&quot;) %&gt;%
+  top_n(5) %&gt;%
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="left">term</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">pre</td>
+<td align="left">preeclampsia</td>
+<td align="right">2038</td>
+</tr>
+<tr class="even">
+<td align="left">eclampsia</td>
+<td align="left">preeclampsia</td>
+<td align="right">2005</td>
+</tr>
+<tr class="odd">
+<td align="left">preeclampsia</td>
+<td align="left">preeclampsia</td>
+<td align="right">1863</td>
+</tr>
+<tr class="even">
+<td align="left">women</td>
+<td align="left">preeclampsia</td>
+<td align="right">1196</td>
+</tr>
+<tr class="odd">
+<td align="left">pregnancy</td>
+<td align="left">preeclampsia</td>
+<td align="right">969</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Prostate cancer abstracts
+tokens2 %&gt;%
+  filter(term == &quot;prostate cancer&quot;) %&gt;%
+  top_n(5) %&gt;%
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="left">term</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">cancer</td>
+<td align="left">prostate cancer</td>
+<td align="right">3840</td>
+</tr>
+<tr class="even">
+<td align="left">prostate</td>
+<td align="left">prostate cancer</td>
+<td align="right">3832</td>
+</tr>
+<tr class="odd">
+<td align="left">patients</td>
+<td align="left">prostate cancer</td>
+<td align="right">934</td>
+</tr>
+<tr class="even">
+<td align="left">treatment</td>
+<td align="left">prostate cancer</td>
+<td align="right">926</td>
+</tr>
+<tr class="odd">
+<td align="left">disease</td>
+<td align="left">prostate cancer</td>
+<td align="right">652</td>
+</tr>
+</tbody>
+</table>
+<p>Tokenize the abstracts into bigrams. Find the 10 most common bigrams and visualize them with ggplot2.</p>
+<pre class="r"><code>mining_abstracts %&gt;%
+  unnest_ngrams(output = bigram, input = abstract, n = 2) %&gt;%
+  count(bigram, sort = TRUE) %&gt;%
+  top_n(10) %&gt;%
+  ggplot(aes(x = n, y = fct_reorder(bigram, n))) +
+  geom_col()</code></pre>
+<pre><code>## Selecting by n</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
+<p>Calculate the TF-IDF value for each word-search term combination (the search term is the “document”). What are the 5 tokens from each search term with the highest TF-IDF value? How are the results different from the answers from question 1?</p>
+<p>(TF-IDF is term frequency x inverse document frequency, it’s a measure of how unique a term is to a single document)</p>
+<pre class="r"><code>tfidf &lt;- mining_abstracts %&gt;%
+  unnest_tokens(output = word, input = abstract) %&gt;%
+  count(word, term) %&gt;%
+  bind_tf_idf(word, term, n) %&gt;%
+  arrange(desc(tf_idf))
+
+tfidf %&gt;%
+  filter(term == &quot;covid&quot;) %&gt;%
+  top_n(5) %&gt;%
+  knitr::kable()</code></pre>
+<pre><code>## Selecting by tf_idf</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="left">term</th>
+<th align="right">n</th>
+<th align="right">tf</th>
+<th align="right">idf</th>
+<th align="right">tf_idf</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">covid</td>
+<td align="left">covid</td>
+<td align="right">7275</td>
+<td align="right">0.0371050</td>
+<td align="right">1.609438</td>
+<td align="right">0.0597183</td>
+</tr>
+<tr class="even">
+<td align="left">pandemic</td>
+<td align="left">covid</td>
+<td align="right">800</td>
+<td align="right">0.0040803</td>
+<td align="right">1.609438</td>
+<td align="right">0.0065670</td>
+</tr>
+<tr class="odd">
+<td align="left">coronavirus</td>
+<td align="left">covid</td>
+<td align="right">647</td>
+<td align="right">0.0032999</td>
+<td align="right">1.609438</td>
+<td align="right">0.0053110</td>
+</tr>
+<tr class="even">
+<td align="left">sars</td>
+<td align="left">covid</td>
+<td align="right">372</td>
+<td align="right">0.0018973</td>
+<td align="right">1.609438</td>
+<td align="right">0.0030536</td>
+</tr>
+<tr class="odd">
+<td align="left">cov</td>
+<td align="left">covid</td>
+<td align="right">334</td>
+<td align="right">0.0017035</td>
+<td align="right">1.609438</td>
+<td align="right">0.0027417</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>tfidf %&gt;%
+  filter(term == &quot;cystic fibrosis&quot;) %&gt;%
+  top_n(5) %&gt;%
+  knitr::kable()</code></pre>
+<pre><code>## Selecting by tf_idf</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="left">term</th>
+<th align="right">n</th>
+<th align="right">tf</th>
+<th align="right">idf</th>
+<th align="right">tf_idf</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">cf</td>
+<td align="left">cystic fibrosis</td>
+<td align="right">625</td>
+<td align="right">0.0127188</td>
+<td align="right">0.9162907</td>
+<td align="right">0.0116541</td>
+</tr>
+<tr class="even">
+<td align="left">fibrosis</td>
+<td align="left">cystic fibrosis</td>
+<td align="right">867</td>
+<td align="right">0.0176435</td>
+<td align="right">0.5108256</td>
+<td align="right">0.0090127</td>
+</tr>
+<tr class="odd">
+<td align="left">cystic</td>
+<td align="left">cystic fibrosis</td>
+<td align="right">862</td>
+<td align="right">0.0175417</td>
+<td align="right">0.5108256</td>
+<td align="right">0.0089608</td>
+</tr>
+<tr class="even">
+<td align="left">cftr</td>
+<td align="left">cystic fibrosis</td>
+<td align="right">86</td>
+<td align="right">0.0017501</td>
+<td align="right">1.6094379</td>
+<td align="right">0.0028167</td>
+</tr>
+<tr class="odd">
+<td align="left">sweat</td>
+<td align="left">cystic fibrosis</td>
+<td align="right">83</td>
+<td align="right">0.0016891</td>
+<td align="right">1.6094379</td>
+<td align="right">0.0027184</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>tfidf %&gt;%
+  filter(term == &quot;meningitis&quot;) %&gt;%
+  top_n(5) %&gt;%
+  knitr::kable()</code></pre>
+<pre><code>## Selecting by tf_idf</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="left">term</th>
+<th align="right">n</th>
+<th align="right">tf</th>
+<th align="right">idf</th>
+<th align="right">tf_idf</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">meningitis</td>
+<td align="left">meningitis</td>
+<td align="right">429</td>
+<td align="right">0.0091942</td>
+<td align="right">1.6094379</td>
+<td align="right">0.0147974</td>
+</tr>
+<tr class="even">
+<td align="left">meningeal</td>
+<td align="left">meningitis</td>
+<td align="right">219</td>
+<td align="right">0.0046935</td>
+<td align="right">1.6094379</td>
+<td align="right">0.0075539</td>
+</tr>
+<tr class="odd">
+<td align="left">pachymeningitis</td>
+<td align="left">meningitis</td>
+<td align="right">149</td>
+<td align="right">0.0031933</td>
+<td align="right">1.6094379</td>
+<td align="right">0.0051394</td>
+</tr>
+<tr class="even">
+<td align="left">csf</td>
+<td align="left">meningitis</td>
+<td align="right">206</td>
+<td align="right">0.0044149</td>
+<td align="right">0.9162907</td>
+<td align="right">0.0040453</td>
+</tr>
+<tr class="odd">
+<td align="left">meninges</td>
+<td align="left">meningitis</td>
+<td align="right">106</td>
+<td align="right">0.0022718</td>
+<td align="right">1.6094379</td>
+<td align="right">0.0036562</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>tfidf %&gt;%
+  filter(term == &quot;preeclampsia&quot;) %&gt;%
+  top_n(5) %&gt;%
+  knitr::kable()</code></pre>
+<pre><code>## Selecting by tf_idf</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="left">term</th>
+<th align="right">n</th>
+<th align="right">tf</th>
+<th align="right">idf</th>
+<th align="right">tf_idf</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">eclampsia</td>
+<td align="left">preeclampsia</td>
+<td align="right">2005</td>
+<td align="right">0.0142784</td>
+<td align="right">1.6094379</td>
+<td align="right">0.0229802</td>
+</tr>
+<tr class="even">
+<td align="left">preeclampsia</td>
+<td align="left">preeclampsia</td>
+<td align="right">1863</td>
+<td align="right">0.0132672</td>
+<td align="right">1.6094379</td>
+<td align="right">0.0213527</td>
+</tr>
+<tr class="odd">
+<td align="left">pregnancy</td>
+<td align="left">preeclampsia</td>
+<td align="right">969</td>
+<td align="right">0.0069006</td>
+<td align="right">0.5108256</td>
+<td align="right">0.0035250</td>
+</tr>
+<tr class="even">
+<td align="left">maternal</td>
+<td align="left">preeclampsia</td>
+<td align="right">797</td>
+<td align="right">0.0056757</td>
+<td align="right">0.5108256</td>
+<td align="right">0.0028993</td>
+</tr>
+<tr class="odd">
+<td align="left">gestational</td>
+<td align="left">preeclampsia</td>
+<td align="right">191</td>
+<td align="right">0.0013602</td>
+<td align="right">1.6094379</td>
+<td align="right">0.0021891</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>tfidf %&gt;%
+  filter(term == &quot;prostate cancer&quot;) %&gt;%
+  top_n(5) %&gt;%
+  knitr::kable()</code></pre>
+<pre><code>## Selecting by tf_idf</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">word</th>
+<th align="left">term</th>
+<th align="right">n</th>
+<th align="right">tf</th>
+<th align="right">idf</th>
+<th align="right">tf_idf</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">prostate</td>
+<td align="left">prostate cancer</td>
+<td align="right">3832</td>
+<td align="right">0.0311890</td>
+<td align="right">1.609438</td>
+<td align="right">0.0501967</td>
+</tr>
+<tr class="even">
+<td align="left">androgen</td>
+<td align="left">prostate cancer</td>
+<td align="right">305</td>
+<td align="right">0.0024824</td>
+<td align="right">1.609438</td>
+<td align="right">0.0039953</td>
+</tr>
+<tr class="odd">
+<td align="left">psa</td>
+<td align="left">prostate cancer</td>
+<td align="right">282</td>
+<td align="right">0.0022952</td>
+<td align="right">1.609438</td>
+<td align="right">0.0036940</td>
+</tr>
+<tr class="even">
+<td align="left">prostatectomy</td>
+<td align="left">prostate cancer</td>
+<td align="right">215</td>
+<td align="right">0.0017499</td>
+<td align="right">1.609438</td>
+<td align="right">0.0028164</td>
+</tr>
+<tr class="odd">
+<td align="left">castration</td>
+<td align="left">prostate cancer</td>
+<td align="right">148</td>
+<td align="right">0.0012046</td>
+<td align="right">1.609438</td>
+<td align="right">0.0019387</td>
+</tr>
+</tbody>
+</table>
+<p>For the COVID abstracts, the top used words and the top TF-IDF shared 3 of 5 words.</p>
+<p>For the cystic fibrosis abstracts, the top used words and the top TF-IDF shared 3 of 5 words.</p>
+<p>For the meningitis abstracts, the top used words and the top TF-IDF shared 3 of 5 words.</p>
+<p>For the preeclampsia abstracts, the top used words and the top TF-IDF shared 3 of 5 words.</p>
+<p>For the prostate cancer abstracts, the top used words and the top TF-IDF shared 1 of 5 words.</p>
+</div>
 </div>
 
 

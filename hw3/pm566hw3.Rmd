@@ -6,10 +6,10 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE)
 ```
 
-```{r}
+```{r, message = FALSE}
 library(httr)
 library(xml2)
 library(stringr)
@@ -21,7 +21,7 @@ library(ggplot2)
 
 # 1. APIs
 
-Using the NCBI API, look for papers that show up under the term "sars-cov-2 trial vaccine." Look for the data in the pubmed database, and then retrieve the details of the paper (as shown in lab 7), including the pubmed ids.
+### Using the NCBI API, look for papers that show up under the term "sars-cov-2 trial vaccine." Look for the data in the PubMed database, and then retrieve the details of the paper (as shown in lab 7), including the PubMed IDs.
 
 ```{r}
 
@@ -35,8 +35,6 @@ query_ids <- GET(
 )
 
 ids <- content(query_ids)
-
-#ids_list  <- as_list(ids)
 
 ids <- as.character(ids)
 
@@ -69,11 +67,16 @@ publications_txt <- as.character(publications)
 ```
 
 Create a dataset containing the following:
-- PubMed ID number
-- Title of the paper
-- Name of the journal where it was published
-- Publication date
-- Abstract of the paper
+
+PubMed ID number
+
+Title of the paper
+
+Name of the journal where it was published
+
+Publication date
+
+Abstract of the paper
 
 ```{r}
 pub_char_list <- xml_children(publications)
@@ -95,8 +98,7 @@ dates <- str_remove_all(dates, "</?[[:alnum:]- =\"]+>")
 dates <- str_replace_all(dates, "[[:space:]]+", " ")
 dates <- trimws(dates, which = c("both"))
 dates <- format(as.Date(dates, "%Y %m %d"), "%m/%d/%Y")
-dates[1:50]
-#dates <- as.Date(dates, "%Y %b %d")
+dates[1:10]
 
 
 database <- data.frame(
@@ -111,93 +113,75 @@ knitr::kable(database[1:5,], caption = "Covid19 Vaccine Trial")
 
 # 2. Text Mining
 
-A dataset from the course data repository contains 3241 abstracts from articles across 5 search terms. Analyse these abstracts to find interesting insights.
+###  A dataset from the course data repository contains 3241 abstracts from articles across 5 search terms. Analyse these abstracts to find interesting insights.
 
 Tokenize the abstracts and count the number of each token. 
 
-```{r}
+```{r, message = FALSE}
 # Importing the dataset 
 mining_abstracts <- read_csv("pubmed.csv")
 mining_abstracts <- as_tibble(mining_abstracts)
 
+# Discovering the 5 topics of the abstracts provided
 terms <- mining_abstracts %>%
-  count(term)
+  count(term) %>%
+  arrange(desc(n))
 
-terms %>%
-  arrange(desc(n)) %>%
-  knitr::kable()
+# Tokenize the abstracts and count the number of each token--------------------
 
-# Tokenize the abstracts and count the number of each token.
-
-# All abstracts, with stop words
+# All abstracts, stop words not removed
 mining_abstracts %>%
   unnest_tokens(output = word, input = abstract) %>%
   count(word, sort = TRUE) %>%
-  top_n(20) %>%
+  top_n(10) %>%
   knitr::kable()
 
-# All abstracts, remove stop words
-
-mining_abstracts %>%
+# All abstracts, stop words and numbers removed
+tokens <- mining_abstracts %>%
   unnest_tokens(output = word, input = abstract) %>%
   count(word, sort = TRUE) %>%
   anti_join(stop_words, by = "word") %>%
-  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
-  top_n(50) %>%
+  filter(!grepl(pattern = "^[0-9]+$", x = word))
+  
+tokens %>%  
+  top_n(10) %>%
   knitr::kable()
 
-# Covid abstracts, stop words and numbers removed
+# Tokenizing per search term----------------------------------------------------
 
-mining_abstracts %>%
+tokens2 <- mining_abstracts %>%
+  unnest_tokens(output = word, input = abstract) %>%
+  count(word, term, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!grepl(pattern = "^[0-9]+$", x = word))
+
+# Covid abstracts
+tokens2 %>%
   filter(term == "covid") %>%
-  unnest_tokens(output = word, input = abstract) %>%
-  count(word, sort = TRUE) %>%
-  anti_join(stop_words, by = "word") %>%
-  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
   top_n(5) %>%
   knitr::kable()
 
-# Cystic fibrosis abstracts, stop words and numbers removed
-
-mining_abstracts %>%
+# Cystic fibrosis abstracts
+tokens2 %>%
   filter(term == "cystic fibrosis") %>%
-  unnest_tokens(output = word, input = abstract) %>%
-  count(word, sort = TRUE) %>%
-  anti_join(stop_words, by = "word") %>%
-  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
   top_n(5) %>%
   knitr::kable()
 
-# Meningitis abstracts, stop words and numbers removed
-
-mining_abstracts %>%
+# Meningitis abstracts
+tokens2 %>%
   filter(term == "meningitis") %>%
-  unnest_tokens(output = word, input = abstract) %>%
-  count(word, sort = TRUE) %>%
-  anti_join(stop_words, by = "word") %>%
-  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
   top_n(5) %>%
   knitr::kable()
 
-# Preeclampsia abstracts, stop words and numbers removed
-
-mining_abstracts %>%
+# Preeclampsia abstracts
+tokens2 %>%
   filter(term == "preeclampsia") %>%
-  unnest_tokens(output = word, input = abstract) %>%
-  count(word, sort = TRUE) %>%
-  anti_join(stop_words, by = "word") %>%
-  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
   top_n(5) %>%
   knitr::kable()
 
-# Prostate cancer abstracts, stop words and numbers removed
-
-mining_abstracts %>%
+# Prostate cancer abstracts
+tokens2 %>%
   filter(term == "prostate cancer") %>%
-  unnest_tokens(output = word, input = abstract) %>%
-  count(word, sort = TRUE) %>%
-  anti_join(stop_words, by = "word") %>%
-  filter(!grepl(pattern = "^[0-9]+$", x = word)) %>%
   top_n(5) %>%
   knitr::kable()
 ```
@@ -250,4 +234,15 @@ tfidf %>%
   top_n(5) %>%
   knitr::kable()
 ```
+
+For the COVID abstracts, the top used words and the top TF-IDF shared 3 of 5 words.
+
+For the cystic fibrosis abstracts, the top used words and the top TF-IDF shared 3 of 5 words.
+
+For the meningitis abstracts, the top used words and the top TF-IDF shared 3 of 5 words.
+
+For the preeclampsia abstracts, the top used words and the top TF-IDF shared 3 of 5 words.
+
+For the prostate cancer abstracts, the top used words and the top TF-IDF shared 1 of 5 words.
+
 
