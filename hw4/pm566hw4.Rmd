@@ -1,0 +1,12 @@
+---
+title: "PM 566 HW 4"
+author: "Chris Hanson"
+date: "11/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
