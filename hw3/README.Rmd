@@ -2,26 +2,27 @@
 title: "PM 566 HW 3"
 author: "Chris Hanson"
 date: "11/5/2021"
-output: html_document
+output: 
+  github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE, message = FALSE)
 ```
 
-```{r, message = FALSE}
+```{r}
 library(httr)
 library(xml2)
 library(stringr)
-library(tidyverse)
-library(data.table)
+library(dplyr)
 library(tidytext)
 library(ggplot2)
+library(forcats)
 ```
 
-# 1. APIs
+## 1. APIs
 
-### Using the NCBI API, look for papers that show up under the term "sars-cov-2 trial vaccine." Look for the data in the PubMed database, and then retrieve the details of the paper (as shown in lab 7), including the PubMed IDs.
+**Using the NCBI API, look for papers that show up under the term "sars-cov-2 trial vaccine." Look for the data in the PubMed database, and then retrieve the details of the paper (as shown in lab 7), including the PubMed IDs.**
 
 ```{r}
 
@@ -45,16 +46,15 @@ ids <- str_remove_all(ids, "<Id>|</Id>")
 
 I found `r length(ids)` papers.
 
-Using the list of Pubmed IDs retrieved, download each paper's details using the query parameter rettype = abstract. Keep just the first 250.
+**Using the list of Pubmed IDs retrieved, download each paper's details using the query parameter rettype = abstract. Keep just the first 250.**
 
-```{r}
+```{r NCBI}
 publications <- GET(
   url   = "https://eutils.ncbi.nlm.nih.gov/",
   path = "entrez/eutils/efetch.fcgi",
   query = list(
     db = "pubmed",
     id = I(paste(ids[1:250], collapse=",")),
-    retmax = 10000,
     rettype = "abstract"
     )
 )
@@ -66,19 +66,19 @@ publications <- httr::content(publications)
 publications_txt <- as.character(publications)
 ```
 
-Create a dataset containing the following:
+**Create a dataset containing the following:**
 
-PubMed ID number
+**PubMed ID number**
 
-Title of the paper
+**Title of the paper**
 
-Name of the journal where it was published
+**Name of the journal where it was published**
 
-Publication date
+**Publication date**
 
-Abstract of the paper
+**Abstract of the paper**
 
-```{r}
+```{r papers}
 pub_char_list <- xml_children(publications)
 pub_char_list <- sapply(pub_char_list, as.character)
 
@@ -98,8 +98,6 @@ dates <- str_remove_all(dates, "</?[[:alnum:]- =\"]+>")
 dates <- str_replace_all(dates, "[[:space:]]+", " ")
 dates <- trimws(dates, which = c("both"))
 dates <- format(as.Date(dates, "%Y %m %d"), "%m/%d/%Y")
-dates[1:10]
-
 
 database <- data.frame(
   PubMedId = ids[1:250],
@@ -108,18 +106,19 @@ database <- data.frame(
   Date     = dates,
   Abstract = abstracts
 )
+
 knitr::kable(database[1:5,], caption = "Covid19 Vaccine Trial")
 ```
 
-# 2. Text Mining
+## 2. Text Mining
 
-###  A dataset from the course data repository contains 3241 abstracts from articles across 5 search terms. Analyse these abstracts to find interesting insights.
+**A dataset from the course data repository contains 3241 abstracts from articles across 5 search terms. Analyse these abstracts to find interesting insights.**
 
-Tokenize the abstracts and count the number of each token. 
+**Tokenize the abstracts and count the number of each token.**
 
-```{r, message = FALSE}
+```{r tokens}
 # Importing the dataset 
-mining_abstracts <- read_csv("pubmed.csv")
+mining_abstracts <- read.csv("pubmed.csv")
 mining_abstracts <- as_tibble(mining_abstracts)
 
 # Discovering the 5 topics of the abstracts provided
@@ -156,52 +155,62 @@ tokens2 <- mining_abstracts %>%
   filter(!grepl(pattern = "^[0-9]+$", x = word))
 
 # Covid abstracts
-tokens2 %>%
+covid <- tokens2 %>%
   filter(term == "covid") %>%
-  top_n(5) %>%
+  top_n(5)
+covid %>%
   knitr::kable()
 
 # Cystic fibrosis abstracts
-tokens2 %>%
+cystic <- tokens2 %>%
   filter(term == "cystic fibrosis") %>%
-  top_n(5) %>%
+  top_n(5) 
+cystic %>%
   knitr::kable()
 
 # Meningitis abstracts
-tokens2 %>%
+menin <- tokens2 %>%
   filter(term == "meningitis") %>%
-  top_n(5) %>%
+  top_n(5) 
+menin %>%
   knitr::kable()
 
 # Preeclampsia abstracts
-tokens2 %>%
+preec <- tokens2 %>%
   filter(term == "preeclampsia") %>%
-  top_n(5) %>%
+  top_n(5) 
+preec %>%
   knitr::kable()
 
 # Prostate cancer abstracts
-tokens2 %>%
+prostate <- tokens2 %>%
   filter(term == "prostate cancer") %>%
-  top_n(5) %>%
+  top_n(5) 
+
+prostate %>%
   knitr::kable()
+
 ```
 
-Tokenize the abstracts into bigrams. Find the 10 most common bigrams and visualize them with ggplot2.
+The most frequently used words across all these abstracts are not very interesting unless stop words are removed. When they are removed, it becomes clear that this is a list of abstracts of medical papers, from a variety of subjects: COVID, cancer, preeclampsia. When filtering these abstracts by search term before tokenizing, the most frequent words are to be expected: "cystic," "fibrosis," "disease," for cystic fibrosis papers, etc.
 
-```{r}
+**Tokenize the abstracts into bigrams. Find the 10 most common bigrams and visualize them with ggplot2.**
+
+```{r bigrams}
 mining_abstracts %>%
   unnest_ngrams(output = bigram, input = abstract, n = 2) %>%
   count(bigram, sort = TRUE) %>%
   top_n(10) %>%
   ggplot(aes(x = n, y = fct_reorder(bigram, n))) +
-  geom_col()
+  geom_col() +
+  labs(Title = "Bigram frequency from all abstracts", y = "Bigram", x = "Count")
 ```
 
-Calculate the TF-IDF value for each word-search term combination (the search term is the "document"). What are the 5 tokens from each search term with the highest TF-IDF value? How are the results different from the answers from question 1?
+**Calculate the TF-IDF value for each word-search term combination (the search term is the "document"). What are the 5 tokens from each search term with the highest TF-IDF value? How are the results different from the answers from question 1?**
 
 (TF-IDF is term frequency x inverse document frequency, it's a measure of how unique a term is to a single document)
 
-```{r}
+```{r TF-IDF}
 
 tfidf <- mining_abstracts %>%
   unnest_tokens(output = word, input = abstract) %>%
@@ -209,40 +218,47 @@ tfidf <- mining_abstracts %>%
   bind_tf_idf(word, term, n) %>%
   arrange(desc(tf_idf))
 
-tfidf %>%
+covid2 <- tfidf %>%
   filter(term == "covid") %>%
-  top_n(5) %>%
+  top_n(5) 
+covid2 %>%
   knitr::kable()
 
-tfidf %>%
+cystic2 <- tfidf %>%
   filter(term == "cystic fibrosis") %>%
-  top_n(5) %>%
+  top_n(5) 
+cystic2 %>%
   knitr::kable()
 
-tfidf %>%
+menin2 <- tfidf %>%
   filter(term == "meningitis") %>%
-  top_n(5) %>%
+  top_n(5) 
+menin2 %>%
   knitr::kable()
 
-tfidf %>%
+preec2 <- tfidf %>%
   filter(term == "preeclampsia") %>%
-  top_n(5) %>%
+  top_n(5) 
+preec2 %>%
   knitr::kable()
 
-tfidf %>%
+prostate2 <- tfidf %>%
   filter(term == "prostate cancer") %>%
-  top_n(5) %>%
+  top_n(5) 
+prostate2 %>%
   knitr::kable()
+
+
 ```
 
-For the COVID abstracts, the top used words and the top TF-IDF shared 3 of 5 words.
+For the COVID abstracts, the top used words and the top TF-IDF shared `r nrow(intersect(covid[,1], covid2[,1]))` of 5 words.
 
-For the cystic fibrosis abstracts, the top used words and the top TF-IDF shared 3 of 5 words.
+For the cystic fibrosis abstracts, the top used words and the top TF-IDF shared `r nrow(intersect(cystic[,1], cystic2[,1]))` of 5 words.
 
-For the meningitis abstracts, the top used words and the top TF-IDF shared 3 of 5 words.
+For the meningitis abstracts, the top used words and the top TF-IDF shared `r nrow(intersect(menin[,1], menin2[,1]))` of 5 words.
 
-For the preeclampsia abstracts, the top used words and the top TF-IDF shared 3 of 5 words.
+For the preeclampsia abstracts, the top used words and the top TF-IDF shared `r nrow(intersect(preec[,1], preec2[,1]))` of 5 words.
 
-For the prostate cancer abstracts, the top used words and the top TF-IDF shared 1 of 5 words.
+For the prostate cancer abstracts, the top used words and the top TF-IDF shared `r nrow(intersect(prostate[,1], prostate2[,1]))` of 5 words.
 
-
+It's to be expected that there is not full intersection between the top words and the top TF-IDF words. Each subject is likely to use common words such as disease and patient, giving those terms a high TF but a low IDF.
