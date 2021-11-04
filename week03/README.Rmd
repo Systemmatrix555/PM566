@@ -1,0 +1,167 @@
+---
+title: "PM 566 Lab 3 - Chris Hanson"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The purpose of PM566 lab 3 is to investigate the meteorological data provided by the National Center for Environmental Information, which is hourly measurements from weather stations across the USA. The objective is to find the weather station with the highest elevation and investigate its wind speed and temperature.
+
+
+### 1. Read in the data
+
+```{r}
+require(data.table)
+
+if (!file.exists("met_all.gz")) {
+
+download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz", "met_all.gz", method="libcurl", timeout = 60)
+  
+}
+```
+
+
+```{r}
+met <- data.table::fread("met_all.gz")
+```
+
+### 2. Check the dimensions, headers, footers. How many columns, rows are there?
+
+```{r}
+dim(met)
+
+```
+```{r}
+head(met)
+```
+
+
+```{r}
+tail(met)
+```
+
+### 3. Take a look at the variables.
+
+```{r}
+str(met)
+```
+
+### 4. Take a closer look at the key variables.
+
+```{r}
+table(met$year)
+```
+
+```{r}
+table(met$day)
+```
+
+```{r}
+table(met$hour)
+```
+
+```{r}
+summary(met$temp)
+```
+
+```{r}
+summary(met$elev)
+```
+
+```{r}
+summary(met$wind.sp)
+```
+
+#### Updating NAs in elevation
+```{r}
+met[met$elev==9999.0] <- NA
+summary(met$elev)
+```
+
+The highest weather station is at `r max(met$elev, na.rm=TRUE)` ft
+
+### 5. Check the data against an external data source.
+
+#### Removing incorrect minimum temperatures
+
+```{r}
+met <- met[temp>-40]
+met2 <- met[order(temp)]
+head(met2)
+```
+
+```{r}
+met <- met[temp>-15]
+met2 <- met[order(temp)]
+head(met2[, .(lat, lon, wind.sp, temp, elev)])
+```
+### 6. Calculate summary statistics
+
+```{r}
+elev <- met[elev==max(elev)]
+summary(elev)
+```
+
+
+```{r}
+cor(elev$temp, elev$wind.sp, use="complete")
+
+cor(elev$temp, elev$hour, use="complete")
+
+cor(elev$wind.sp, elev$day, use="complete")
+
+cor(elev$wind.sp, elev$hour, use="complete")
+
+cor(elev$temp, elev$day, use="complete")
+
+```
+
+#### Doing the above, but with data.table
+```{r}
+met[elev == max(elev, na.rm = TRUE), .(
+  temp_wind = cor(temp, wind.sp, use = "complete"),
+  temp_hour = cor(temp, hour, use = "complete"),
+  temp_day = cor(temp, day, use = "complete"),
+  wind_day = cor(wind.sp, day, use = "complete"),
+  wind_hour = cor(wind.sp, hour, use = "complete")
+)]
+```
+
+
+### 7. Exploratory graphs
+
+```{r}
+hist(met$elev, breaks=100)
+```
+
+
+```{r}
+hist(met$temp)
+```
+
+```{r}
+hist(met$wind.sp)
+```
+
+
+```{r include = FALSE}
+library(lubridate)
+elev$date <- with(elev, ymd_h(paste(year, month, day, hour, sep= ' ')))
+summary(elev$date)
+```
+
+```{r}
+elev <- elev[order(date)]
+head(elev)
+```
+
+```{r}
+plot(elev$date, elev$temp, type='l')
+```
+
+```{r}
+plot(elev$date, elev$wind.sp, type='l')
+```
+
