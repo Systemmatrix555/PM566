@@ -41,6 +41,7 @@ dbGetQuery(con,
 "SELECT actor_id, first_name, last_name
 FROM actor
 ORDER BY last_name, first_name
+LIMIT 10
 ")
 ```
 
@@ -52,7 +53,8 @@ ORDER BY last_name, first_name
 dbGetQuery(con,
 "SELECT actor_id, first_name, last_name
 FROM actor
-WHERE last_name == 'WILLIAMS' or last_name == 'DAVIS'
+WHERE last_name IN ('WILLIAMS', 'DAVIS')
+LIMIT 10
 ")
 ```
 
@@ -66,6 +68,7 @@ dbGetQuery(con,
 FROM rental
 WHERE date(rental_date) == '2005-07-05'
 ORDER BY customer_id
+LIMIT 10
 ")
 ```
 
@@ -79,8 +82,9 @@ ORDER BY customer_id
 dbGetQuery(con,
 "SELECT *
 FROM payment
-WHERE amount == 1.99 OR amount == 7.99 OR amount == 9.99
+WHERE amount IN (1.99, 7.99, 9.99)
 ORDER BY payment_id
+LIMIT 10
 ")
 ```
 
@@ -94,6 +98,7 @@ dbGetQuery(con,
 FROM payment
 WHERE amount > 5
 ORDER BY payment_id
+LIMIT 10
 ")
 ```
 
@@ -103,9 +108,9 @@ ORDER BY payment_id
 
 ```{r ex5}
 dbGetQuery(con,
-"SELECT payment_id, amount
+"SELECT payment_id, amount, customer.last_name
 FROM payment
-LEFT JOIN customer
+INNER JOIN customer ON payment.customer_id = customer.customer_id
 WHERE customer.last_name == 'DAVIS'
 ")
 ```
@@ -118,7 +123,9 @@ WHERE customer.last_name == 'DAVIS'
 
 ```{r ex6-1}
 dbGetQuery(con,
-"
+"SELECT COUNT(*)
+FROM rental
+LIMIT 10
 ")
 ```
 
@@ -128,7 +135,10 @@ dbGetQuery(con,
 
 ```{r ex6-2}
 dbGetQuery(con,
-"
+"SELECT COUNT(*) as '# rentals', customer_id
+FROM rental
+GROUP BY customer_id
+LIMIT 10
 ")
 ```
 
@@ -137,7 +147,13 @@ dbGetQuery(con,
 **Repeat the previous query and sort by the count in descending order.**
 
 ```{r ex6-3}
-
+dbGetQuery(con,
+"SELECT COUNT(*) as '# rentals', customer_id
+FROM rental
+GROUP BY customer_id
+ORDER BY `# rentals` DESC
+LIMIT 10
+")
 ```
 
 ## Excercise 6.4
@@ -145,17 +161,37 @@ dbGetQuery(con,
 **Repeat the previous query but use HAVING to only keep the groups with 40 or more.**
 
 ```{r ex6-4}
-
+dbGetQuery(con,
+"SELECT COUNT(*) as '# rentals', customer_id
+FROM rental
+GROUP BY customer_id
+HAVING `# rentals` >= 40
+ORDER BY `# rentals` DESC
+LIMIT 10
+")
 ```
 
 # Exercise 7
+
+**Calculate a number of summary statistics for the payment table using MAX, MIN, AVG and SUM**
+
 
 ## Excercise 7.1
 
 **Modify the above query to do those calculations for each customer_id.**
 
 ```{r ex7-1}
-
+dbGetQuery(con,
+"SELECT
+  customer_id,
+  MAX(amount) as max,
+  MIN(amount) as min,
+  AVG(amount) as avg,
+  SUM(amount) as sum
+FROM payment
+GROUP BY customer_id
+LIMIT 10
+")
 ```
 
 ## Excercise 7.2
@@ -163,7 +199,18 @@ dbGetQuery(con,
 **Modify the above query to only keep the customer_ids that have more then 5 payments.**
 
 ```{r ex7-2}
-
+dbGetQuery(con,
+"SELECT
+  customer_id,
+  MAX(amount) as max,
+  MIN(amount) as min,
+  AVG(amount) as avg,
+  SUM(amount) as sum
+FROM payment
+GROUP BY customer_id
+HAVING count(customer_id) > 5
+LIMIT 10
+")
 ```
 
 # Cleanup
