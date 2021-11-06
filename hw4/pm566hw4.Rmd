@@ -20,9 +20,7 @@ library(dplyr)
 
 **Rewrite the following R functions to make them faster.**
 
-```{r}
-mat1 <- matrix(1:80, nrow = 5, ncol = 16, byrow=TRUE)
-```
+*Original:*
 
 ```{r}
 # Total row sums
@@ -36,12 +34,16 @@ fun1 <- function(mat) {
 }
 ```
 
+*Rewrite:*
+
 ```{r}
 fun1alt <- function(mat) {
   ans <- rowSums(mat)
   ans
 }
 ```
+
+*Original:*
 
 ```{r}
 # Cumulative sum by row
@@ -58,6 +60,8 @@ fun2 <- function(mat) {
 }
 ```
 
+*Rewrite:*
+
 ```{r}
 fun2alt <- function(mat) {
   ans <- t(apply(mat, 1, cumsum))
@@ -65,18 +69,20 @@ fun2alt <- function(mat) {
 }
 ```
 
+
+
 ```{r}
-# Use the data with this code
+# Make a matrix to test and compare the original and rewritten functions
 set.seed(2315)
 dat <- matrix(rnorm(200 * 100), nrow = 200)
 
-# Test for the first
+# Test the first original function against the rewritten function
 microbenchmark::microbenchmark(
   fun1(dat),
   fun1alt(dat), unit = "relative", check = "equivalent"
 )
 
-# Test for the second
+# Test the second original function against the rewritten function
 microbenchmark::microbenchmark(
   fun2(dat),
   fun2alt(dat), unit = "relative", check = "equivalent"
@@ -85,7 +91,7 @@ microbenchmark::microbenchmark(
 
 ## Problem 2: Make things run faster with parallel computing
 
-**The following function allows simulating PI**
+**The following function allows simulating PI (3.14)**
 
 (runif generates uniform random numbers between 0 and 1. we generate 2 of these, square them, and add them together. if this is less than 1, we get a 1. if not, we get a 0. we take the mean of 2000 of these and multiply by 4, and this approximates pi, much to my disbelief)
 
@@ -134,5 +140,77 @@ system.time({
 })
 ```
 
+# SQL
 
+**Set up a temporary database by running the following chunk:**
 
+```{r}
+library(RSQLite)
+library(DBI)
+
+# Initialize a temporary in memory database
+con <- dbConnect(SQLite(), ":memory:")
+
+# Download tables
+film <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/film.csv")
+film_category <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/film_category.csv")
+category <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/category.csv")
+
+# Copy data.frames to database
+dbWriteTable(con, "film", film)
+dbWriteTable(con, "film_category", film_category)
+dbWriteTable(con, "category", category)
+
+dbListTables(con)
+
+```
+
+## Question 1: How many movies are there available in each rating category?
+
+```{sql, connection = con}
+SELECT rating as 'Rating', COUNT(*) AS '# of films'
+FROM film
+GROUP BY rating
+```
+
+## Question 2: What is the average replacement cost and rental rate for each rating category?
+
+```{sql, connection = con}
+SELECT f.rating AS 'Rating', AVG(f.rental_rate) AS 'Avg Rental Rate', AVG(f.replacement_cost) AS 'Avg Replacement Cost'
+FROM film AS f
+GROUP BY f.rating
+```
+
+## Question 3: Find how many films there are within each category ID:
+
+```{sql, connection = con}
+SELECT COUNT(*) AS 'Count', fc.category_id as 'Category ID'
+FROM film AS f
+INNER JOIN film_category AS fc
+ON f.film_id = fc.film_id
+GROUP BY fc.category_id
+```
+
+## Question 4: Incorporate the 'category' table into the previous answer to find the name of the most popular cagetory:
+
+```{sql, connection = con}
+SELECT COUNT(*) as 'Count', a.category_id as 'Category ID', a.name AS 'Category Name'
+FROM 
+(SELECT *
+FROM film_category AS fc
+LEFT JOIN category as c
+ON fc.category_id = c.category_id) AS a
+LEFT JOIN film as f
+ON a.film_id = f.film_id
+GROUP BY `Category Name`
+ORDER BY `Count` DESC
+```
+
+### Cleanup
+
+**Run the following chunk to disconnect from the connection.**
+
+```{r cleanup}
+# clean up
+dbDisconnect(con)
+```
