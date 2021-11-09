@@ -2,7 +2,7 @@
 title: "PM 566 HW 4"
 author: "Chris Hanson"
 date: "11/19/2021"
-output: github_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -107,8 +107,6 @@ sim_pi(1000) # 3.132
 ```
 
 **In order to get accurate estimates, we can run this function multiple times, with the following code:**
-
-(lapply returns a list of the same length as X, each element of which is the result of applying FUN to the corresponding element of X. n is an optional argument to FUN. this runs sim_pi 4000 times, each time with n = 10,000. unlist just turns this from a list to a vector)
 
 ```{r}
 # This runs the simulation a 4,000 times, each with 10,000 points
