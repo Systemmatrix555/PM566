@@ -1,4 +1,3 @@
-.Rproj.user
 .Rhistory
 .RData
 .Ruserdata
@@ -11,3 +10,4 @@
 *.pptx
 *.doc
 *.docx
+.Rproj.user
