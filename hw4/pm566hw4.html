@@ -178,7 +178,7 @@ pre code {
 <div id="problem-1-make-sure-your-code-is-nice" class="section level2">
 <h2>Problem 1: Make sure your code is nice</h2>
 <p><strong>Rewrite the following R functions to make them faster.</strong></p>
-<pre class="r"><code>mat1 &lt;- matrix(1:80, nrow = 5, ncol = 16, byrow=TRUE)</code></pre>
+<p><em>Original:</em></p>
 <pre class="r"><code># Total row sums
 fun1 &lt;- function(mat) {
   n &lt;- nrow(mat)
@@ -188,10 +188,12 @@ fun1 &lt;- function(mat) {
   }
   ans
 }</code></pre>
+<p><em>Rewrite:</em></p>
 <pre class="r"><code>fun1alt &lt;- function(mat) {
   ans &lt;- rowSums(mat)
   ans
 }</code></pre>
+<p><em>Original:</em></p>
 <pre class="r"><code># Cumulative sum by row
 fun2 &lt;- function(mat) {
   n &lt;- nrow(mat)
@@ -204,36 +206,37 @@ fun2 &lt;- function(mat) {
   }
   ans
 }</code></pre>
+<p><em>Rewrite:</em></p>
 <pre class="r"><code>fun2alt &lt;- function(mat) {
   ans &lt;- t(apply(mat, 1, cumsum))
   ans
 }</code></pre>
-<pre class="r"><code># Use the data with this code
+<pre class="r"><code># Make a matrix to test and compare the original and rewritten functions
 set.seed(2315)
 dat &lt;- matrix(rnorm(200 * 100), nrow = 200)
 
-# Test for the first
+# Test the first original function against the rewritten function
 microbenchmark::microbenchmark(
   fun1(dat),
   fun1alt(dat), unit = &quot;relative&quot;, check = &quot;equivalent&quot;
 )</code></pre>
 <pre><code>## Unit: relative
-##          expr      min      lq     mean   median       uq      max neval
-##     fun1(dat) 4.181619 5.44086 4.247812 5.472574 5.527835 0.275328   100
-##  fun1alt(dat) 1.000000 1.00000 1.000000 1.000000 1.000000 1.000000   100</code></pre>
-<pre class="r"><code># Test for the second
+##          expr      min       lq     mean   median       uq      max neval
+##     fun1(dat) 1.678652 1.704125 1.702872 1.712202 1.721548 1.072905   100
+##  fun1alt(dat) 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000   100</code></pre>
+<pre class="r"><code># Test the second original function against the rewritten function
 microbenchmark::microbenchmark(
   fun2(dat),
   fun2alt(dat), unit = &quot;relative&quot;, check = &quot;equivalent&quot;
 )</code></pre>
 <pre><code>## Unit: relative
 ##          expr      min       lq     mean   median       uq       max neval
-##     fun2(dat) 5.741076 4.339089 3.471003 4.315171 3.991879 0.4331736   100
+##     fun2(dat) 1.530501 1.425847 1.304177 1.395677 1.368584 0.3334695   100
 ##  fun2alt(dat) 1.000000 1.000000 1.000000 1.000000 1.000000 1.0000000   100</code></pre>
 </div>
 <div id="problem-2-make-things-run-faster-with-parallel-computing" class="section level2">
 <h2>Problem 2: Make things run faster with parallel computing</h2>
-<p><strong>The following function allows simulating PI</strong></p>
+<p><strong>The following function allows simulating PI (3.14)</strong></p>
 <p>(runif generates uniform random numbers between 0 and 1. we generate 2 of these, square them, and add them together. if this is less than 1, we get a 1. if not, we get a 0. we take the mean of 2000 of these and multiply by 4, and this approximates pi, much to my disbelief)</p>
 <pre class="r"><code>sim_pi &lt;- function(n = 1000, i = NULL) {
   p &lt;- matrix(runif(n*2), ncol = 2)
@@ -254,7 +257,7 @@ system.time({
 })</code></pre>
 <pre><code>## [1] 3.14124</code></pre>
 <pre><code>##    user  system elapsed 
-##    1.45    0.00    1.45</code></pre>
+##  10.420   0.056  10.478</code></pre>
 <p><strong>Rewrite the previous code using parLapply() to make it run faster. Make sure you set the seed using clusterSetRNGStream():</strong></p>
 <pre class="r"><code>library(parallel)
 system.time({
@@ -274,7 +277,7 @@ system.time({
 })</code></pre>
 <pre><code>## [1] 3.141584</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.00    0.01    0.72</code></pre>
+##   0.016   0.012   2.863</code></pre>
 </div>
 </div>
 <div id="sql" class="section level1">
@@ -300,7 +303,7 @@ dbListTables(con)</code></pre>
 <pre><code>## [1] &quot;category&quot;      &quot;film&quot;          &quot;film_category&quot;</code></pre>
 <div id="question-1-how-many-movies-are-there-available-in-each-rating-category" class="section level2">
 <h2>Question 1: How many movies are there available in each rating category?</h2>
-<pre class="sql"><code>SELECT COUNT(*) AS &#39;# of films&#39;, rating
+<pre class="sql"><code>SELECT rating as &#39;Rating&#39;, COUNT(*) AS &#39;# of films&#39;
 FROM film
 GROUP BY rating</code></pre>
 <div class="knitsql-table">
@@ -308,30 +311,30 @@ GROUP BY rating</code></pre>
 <caption>5 records</caption>
 <thead>
 <tr class="header">
+<th align="left">Rating</th>
 <th align="right"># of films</th>
-<th align="left">rating</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">180</td>
 <td align="left">G</td>
+<td align="right">180</td>
 </tr>
 <tr class="even">
-<td align="right">210</td>
 <td align="left">NC-17</td>
+<td align="right">210</td>
 </tr>
 <tr class="odd">
-<td align="right">194</td>
 <td align="left">PG</td>
+<td align="right">194</td>
 </tr>
 <tr class="even">
-<td align="right">223</td>
 <td align="left">PG-13</td>
+<td align="right">223</td>
 </tr>
 <tr class="odd">
-<td align="right">195</td>
 <td align="left">R</td>
+<td align="right">195</td>
 </tr>
 </tbody>
 </table>
@@ -339,157 +342,44 @@ GROUP BY rating</code></pre>
 </div>
 <div id="question-2-what-is-the-average-replacement-cost-and-rental-rate-for-each-rating-category" class="section level2">
 <h2>Question 2: What is the average replacement cost and rental rate for each rating category?</h2>
-<pre class="sql"><code>SELECT fc.category_id AS &#39;Category ID&#39;, AVG(f.rental_rate) AS &#39;Avg Rental Rate&#39;, AVG(f.replacement_cost) AS &#39;Avg Replacement Cost&#39;
+<pre class="sql"><code>SELECT f.rating AS &#39;Rating&#39;, AVG(f.rental_rate) AS &#39;Avg Rental Rate&#39;, AVG(f.replacement_cost) AS &#39;Avg Replacement Cost&#39;
 FROM film AS f
-INNER JOIN film_category AS fc
-ON f.film_id = fc.film_id
-GROUP BY fc.category_id
-LIMIT 16</code></pre>
+GROUP BY f.rating</code></pre>
 <div class="knitsql-table">
 <table>
-<caption>Displaying records 1 - 10</caption>
+<caption>5 records</caption>
 <thead>
 <tr class="header">
-<th align="left">Category ID</th>
+<th align="left">Rating</th>
 <th align="right">Avg Rental Rate</th>
 <th align="right">Avg Replacement Cost</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">1</td>
-<td align="right">2.646250</td>
-<td align="right">20.91187</td>
+<td align="left">G</td>
+<td align="right">2.912222</td>
+<td align="right">20.12333</td>
 </tr>
 <tr class="even">
-<td align="left">2</td>
-<td align="right">2.808182</td>
-<td align="right">20.12636</td>
+<td align="left">NC-17</td>
+<td align="right">2.970952</td>
+<td align="right">20.13762</td>
 </tr>
 <tr class="odd">
-<td align="left">3</td>
-<td align="right">2.890000</td>
-<td align="right">20.05667</td>
+<td align="left">PG</td>
+<td align="right">3.051856</td>
+<td align="right">18.95907</td>
 </tr>
 <tr class="even">
-<td align="left">4</td>
-<td align="right">2.744386</td>
-<td align="right">21.00754</td>
+<td align="left">PG-13</td>
+<td align="right">3.034843</td>
+<td align="right">20.40256</td>
 </tr>
 <tr class="odd">
-<td align="left">5</td>
-<td align="right">3.162414</td>
-<td align="right">19.02448</td>
-</tr>
-<tr class="even">
-<td align="left">6</td>
-<td align="right">2.666471</td>
-<td align="right">19.62235</td>
-</tr>
-<tr class="odd">
-<td align="left">7</td>
-<td align="right">3.022258</td>
-<td align="right">21.08677</td>
-</tr>
-<tr class="even">
-<td align="left">8</td>
-<td align="right">2.758116</td>
-<td align="right">19.72913</td>
-</tr>
-<tr class="odd">
-<td align="left">9</td>
-<td align="right">3.099589</td>
-<td align="right">18.64753</td>
-</tr>
-<tr class="even">
-<td align="left">10</td>
-<td align="right">3.252295</td>
-<td align="right">20.28508</td>
-</tr>
-</tbody>
-</table>
-</div>
-<pre class="sql"><code>SELECT AVG(f.rental_rate) AS &#39;Avg Rental Rate&#39;, AVG(f.replacement_cost) AS &#39;Avg Replacement Cost&#39;, a.category_id, a.name AS &#39;Category Name&#39;
-FROM 
-  (SELECT fc.film_id, fc.category_id, c.name
-  FROM film_category AS fc
-  LEFT JOIN category as c
-  ON fc.category_id = c.category_id) AS a
-LEFT JOIN film as f
-ON a.film_id = f.film_id
-GROUP BY a.category_id
-LIMIT 16</code></pre>
-<div class="knitsql-table">
-<table>
-<caption>Displaying records 1 - 10</caption>
-<thead>
-<tr class="header">
-<th align="right">Avg Rental Rate</th>
-<th align="right">Avg Replacement Cost</th>
-<th align="right">category_id</th>
-<th align="left">Category Name</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">2.646250</td>
-<td align="right">20.91187</td>
-<td align="right">1</td>
-<td align="left">Action</td>
-</tr>
-<tr class="even">
-<td align="right">2.808182</td>
-<td align="right">20.12636</td>
-<td align="right">2</td>
-<td align="left">Animation</td>
-</tr>
-<tr class="odd">
-<td align="right">2.890000</td>
-<td align="right">20.05667</td>
-<td align="right">3</td>
-<td align="left">Children</td>
-</tr>
-<tr class="even">
-<td align="right">2.744386</td>
-<td align="right">21.00754</td>
-<td align="right">4</td>
-<td align="left">Classics</td>
-</tr>
-<tr class="odd">
-<td align="right">3.162414</td>
-<td align="right">19.02448</td>
-<td align="right">5</td>
-<td align="left">Comedy</td>
-</tr>
-<tr class="even">
-<td align="right">2.666471</td>
-<td align="right">19.62235</td>
-<td align="right">6</td>
-<td align="left">Documentary</td>
-</tr>
-<tr class="odd">
-<td align="right">3.022258</td>
-<td align="right">21.08677</td>
-<td align="right">7</td>
-<td align="left">Drama</td>
-</tr>
-<tr class="even">
-<td align="right">2.758116</td>
-<td align="right">19.72913</td>
-<td align="right">8</td>
-<td align="left">Family</td>
-</tr>
-<tr class="odd">
-<td align="right">3.099589</td>
-<td align="right">18.64753</td>
-<td align="right">9</td>
-<td align="left">Foreign</td>
-</tr>
-<tr class="even">
-<td align="right">3.252295</td>
-<td align="right">20.28508</td>
-<td align="right">10</td>
-<td align="left">Games</td>
+<td align="left">R</td>
+<td align="right">2.938718</td>
+<td align="right">20.23103</td>
 </tr>
 </tbody>
 </table>
@@ -501,8 +391,7 @@ LIMIT 16</code></pre>
 FROM film AS f
 INNER JOIN film_category AS fc
 ON f.film_id = fc.film_id
-GROUP BY fc.category_id
-LIMIT 16</code></pre>
+GROUP BY fc.category_id</code></pre>
 <div class="knitsql-table">
 <table>
 <caption>Displaying records 1 - 10</caption>
@@ -561,15 +450,14 @@ LIMIT 16</code></pre>
 <h2>Question 4: Incorporate the ‘category’ table into the previous answer to find the name of the most popular cagetory:</h2>
 <pre class="sql"><code>SELECT COUNT(*) as &#39;Count&#39;, a.category_id as &#39;Category ID&#39;, a.name AS &#39;Category Name&#39;
 FROM 
-(SELECT fc.film_id, fc.category_id, c.name
+(SELECT *
 FROM film_category AS fc
 LEFT JOIN category as c
 ON fc.category_id = c.category_id) AS a
 LEFT JOIN film as f
 ON a.film_id = f.film_id
 GROUP BY `Category Name`
-ORDER BY `Count` DESC
-LIMIT 16</code></pre>
+ORDER BY `Count` DESC</code></pre>
 <div class="knitsql-table">
 <table>
 <caption>Displaying records 1 - 10</caption>
@@ -630,90 +518,6 @@ LIMIT 16</code></pre>
 <td align="right">61</td>
 <td align="right">10</td>
 <td align="left">Games</td>
-</tr>
-</tbody>
-</table>
-</div>
-<pre class="sql"><code>SELECT f.title AS &#39;Title&#39;, a.film_id, a.category_id, a.name AS &#39;Category Name&#39;
-FROM 
-(SELECT fc.film_id, fc.category_id, c.name
-FROM film_category AS fc
-LEFT JOIN category as c
-ON fc.category_id = c.category_id) AS a
-LEFT JOIN film as f
-ON a.film_id = f.film_id
-LIMIT 16</code></pre>
-<div class="knitsql-table">
-<table>
-<caption>Displaying records 1 - 10</caption>
-<thead>
-<tr class="header">
-<th align="left">Title</th>
-<th align="right">film_id</th>
-<th align="right">category_id</th>
-<th align="left">Category Name</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">ACADEMY DINOSAUR</td>
-<td align="right">1</td>
-<td align="right">6</td>
-<td align="left">Documentary</td>
-</tr>
-<tr class="even">
-<td align="left">ACE GOLDFINGER</td>
-<td align="right">2</td>
-<td align="right">11</td>
-<td align="left">Horror</td>
-</tr>
-<tr class="odd">
-<td align="left">ADAPTATION HOLES</td>
-<td align="right">3</td>
-<td align="right">6</td>
-<td align="left">Documentary</td>
-</tr>
-<tr class="even">
-<td align="left">AFFAIR PREJUDICE</td>
-<td align="right">4</td>
-<td align="right">11</td>
-<td align="left">Horror</td>
-</tr>
-<tr class="odd">
-<td align="left">AFRICAN EGG</td>
-<td align="right">5</td>
-<td align="right">8</td>
-<td align="left">Family</td>
-</tr>
-<tr class="even">
-<td align="left">AGENT TRUMAN</td>
-<td align="right">6</td>
-<td align="right">9</td>
-<td align="left">Foreign</td>
-</tr>
-<tr class="odd">
-<td align="left">AIRPLANE SIERRA</td>
-<td align="right">7</td>
-<td align="right">5</td>
-<td align="left">Comedy</td>
-</tr>
-<tr class="even">
-<td align="left">AIRPORT POLLOCK</td>
-<td align="right">8</td>
-<td align="right">11</td>
-<td align="left">Horror</td>
-</tr>
-<tr class="odd">
-<td align="left">ALABAMA DEVIL</td>
-<td align="right">9</td>
-<td align="right">11</td>
-<td align="left">Horror</td>
-</tr>
-<tr class="even">
-<td align="left">ALADDIN CALENDAR</td>
-<td align="right">10</td>
-<td align="right">15</td>
-<td align="left">Sports</td>
 </tr>
 </tbody>
 </table>
