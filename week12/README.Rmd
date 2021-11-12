@@ -2,7 +2,7 @@
 title: "PM 566 Week 12 Lab"
 author: "Chris Hanson"
 date: "11/12/2021"
-output: github_document
+output: html_document
 always_allow_html: true
 ---
 
