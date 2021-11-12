@@ -2,7 +2,7 @@
 title: "PM 566 Week 12 Lab"
 author: "Chris Hanson"
 date: "11/12/2021"
-output: github_document
+output: html_document
 always_allow_html: true
 ---
 
@@ -10,7 +10,7 @@ always_allow_html: true
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-**See my lab output** [**here**](something)
+**See my lab output** [**here**](https://ghcdn.rawgit.org/ristopherCh/PM566/main/week12/README.html)
 
 **Grab lab file using command line:**
 
@@ -228,7 +228,7 @@ cv_states_today = subset(cv_states, date==max(cv_states$date))
 # pop_density vs. cases
 cv_states_today %>% 
   plot_ly(x = ~pop_density, y = ~cases, 
-          type = 'scatter', mode = 'markers', color = ~'state',
+          type = 'scatter', mode = 'markers', color = ~state,
           size = ~population, sizes = c(5, 70), marker = list(sizemode='diameter', opacity=0.5))
 
 # filter out "District of Columbia"
