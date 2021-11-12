@@ -2,20 +2,13 @@
 title: "PM 566 Week 12 Lab"
 author: "Chris Hanson"
 date: "11/12/2021"
-output: html_document
+output: github_document
 always_allow_html: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 **See my lab output** [**here**](https://ghcdn.rawgit.org/ristopherCh/PM566/main/week12/README.html)
 
-**Grab lab file using command line:**
-
-
-```{r, message=FALSE, echo=FALSE, warning=FALSE}
+```{r setup, message=FALSE, echo=FALSE, warning=FALSE}
 library(data.table)
 library(tidyverse)
 library(dplyr)
