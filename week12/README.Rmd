@@ -3,7 +3,7 @@ title: "PM 566 Week 12 Lab"
 author: "Chris Hanson"
 date: "11/12/2021"
 output: 
-  github_document: default
+  html_document: default
 always_allow_html: true
 ---
 
@@ -22,7 +22,6 @@ opts_chunk$set(
   echo = TRUE,
   cache=FALSE,
   include=TRUE,
-  clean = TRUE,
   fig.width = 7, 
   fig.align = 'center',
   fig.asp = 0.618,
@@ -31,11 +30,11 @@ opts_chunk$set(
 
 ## I. Reading and processing the NYT state-level COVID-19 data. 
 
-### 1. Read in the data
+### 1. Read in the data 
 
 - Read in the COVID data with data.table:fread() from the NYT GitHub repository: "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"
 - Read in the state population data with data.table:fread() from the repository: "https://raw.githubusercontent.com/COVID19Tracking/associated-data/master/us_census_data/us_census_2018_population_estimates_states.csv""
-- Merge datasets
+- Merge datasets 
 
 ```{r}
 ## data extracted from New York Times state-level data from NYT Github repository
