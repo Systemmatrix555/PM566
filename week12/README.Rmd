@@ -3,7 +3,6 @@ title: "PM 566 Week 12 Lab"
 author: "Chris Hanson"
 date: "11/12/2021"
 output: 
-  html_document: default
   github_document: default
 always_allow_html: true
 ---
@@ -29,7 +28,7 @@ opts_chunk$set(
   out.width = "700px")
 ```
 
-## I. Reading and processing the NYT state-level COVID-19 data.
+## I. Reading and processing the NYT state-level COVID-19 data. 
 
 ### 1. Read in the data
 
