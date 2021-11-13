@@ -42,18 +42,15 @@ opts_chunk$set(
 ## state-level population information from us_census_data available on GitHub repository:
 # https://github.com/COVID19Tracking/associated-data/tree/master/us_census_data
 
-### FINISH THE CODE HERE ###
 # load COVID state-level data from NYT
 cv_states <- as.data.frame(data.table::fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"))
 
-### FINISH THE CODE HERE ###
 # load state population data
 state_pops <- as.data.frame(data.table::fread("https://raw.githubusercontent.com/COVID19Tracking/associated-data/master/us_census_data/us_census_2018_population_estimates_states.csv"))
 state_pops$abb <- state_pops$state
 state_pops$state <- state_pops$state_name
 state_pops$state_name <- NULL
 
-### FINISH THE CODE HERE
 cv_states <- merge(cv_states, state_pops, by= "state")
 ```
 
@@ -69,10 +66,12 @@ tail(cv_states)
 str(cv_states)
 ```
 
+*The variables are all in the correct format.*
+
 ### 3. Format the data
 
 - Make date into a date variable, by year-month-day
-- Make state into a factor variable
+- Make state into a factor variable (what is that?)
 - Order the data first by state, second by date
 - Confirm the variables are now correctly formatted
 - Inspect the range values for each variable. What is the date range? The range of cases and deaths?
@@ -83,11 +82,10 @@ cv_states$date <- as.Date(cv_states$date, format="%Y-%m-%d")
 
 # format the state and state abbreviation (abb) variables
 state_list <- unique(cv_states$state)
-cv_states$state <- factor(cv_states$state, levels = state_list)
+cv_states$state <- factor(cv_states$state, levels = state_list) # what is this?
 abb_list <- unique(cv_states$abb)
 cv_states$abb <- factor(cv_states$abb, levels = abb_list)
 
-### FINISH THE CODE HERE 
 # order the data first by state, second by date
 cv_states = cv_states[order(cv_states$state, cv_states$date),]
 
@@ -105,7 +103,7 @@ max(cv_states$date)
 
 ### 4. Add `new_cases` and `new_deaths` and correct outliers
 
-- Add variables for new cases, `new_cases`, and new deaths, `new_deaths`: 
+- Add variables for new cases, `new_cases`, and new deaths, `new_deaths` 
   - Hint: You can set `new_cases` equal to the difference between cases on date i and date i-1, starting on date i=2
 - Filter to dates after June 1, 2021
 - Use `plotly` for EDA: See if there are outliers or values that don't make sense for `new_cases` and `new_deaths`. Which states and which dates have strange values?
@@ -117,12 +115,12 @@ max(cv_states$date)
 ```{r}
 # Add variables for new_cases and new_deaths:
 for (i in 1:length(state_list)) {
-  cv_subset = subset(cv_states, state == state_list[i])
-  cv_subset = cv_subset[order(cv_subset$date),]
+  cv_subset = subset(cv_states, state == state_list[i]) # subset for just one state
+  cv_subset = cv_subset[order(cv_subset$date),] # order that state by date
   
-  # add starting level for new cases and deaths
-  cv_subset$new_cases = cv_subset$cases[1]
-  cv_subset$new_deaths = cv_subset$deaths[1]
+  # add starting level for new cases and deaths 
+  cv_subset$new_cases = cv_subset$cases[1] 
+  cv_subset$new_deaths = cv_subset$deaths[1] 
   
   for (j in 2:nrow(cv_subset)) {
     cv_subset$new_cases[j] = cv_subset$cases[j] - cv_subset$cases[j-1] 
@@ -130,7 +128,7 @@ for (i in 1:length(state_list)) {
   }
   
   # include in main dataset
-  cv_states$new_cases[cv_states$state==state_list[i]] = cv_subset$new_cases
+  cv_states$new_cases[cv_states$state==state_list[i]] = cv_subset$new_cases 
   cv_states$new_deaths[cv_states$state==state_list[i]] = cv_subset$new_deaths
 }
 
@@ -139,7 +137,7 @@ cv_states <- cv_states %>% dplyr::filter(date >= "2021-06-01")
 
 # Inspect outliers in new_cases using plotly
 p1<-ggplot(cv_states, aes(x = date, y = new_cases, color = state)) + geom_line() + geom_point(size = 0.5, alpha = 0.5)
-ggplotly(p1)
+#ggplotly(p1)
 p1<-NULL # to clear from work space
 p2<-ggplot(cv_states, aes(x = date, y = new_deaths, color = state)) + geom_line() + geom_point(size = 0.5, alpha = 0.5)
 #ggplotly(p2)
@@ -171,9 +169,9 @@ for (i in 1:length(state_list)) {
 cv_states$new_cases = zoo::rollmean(cv_states$new_cases, k=7, fill=NA, align='right') %>% round(digits = 0)
 cv_states$new_deaths = zoo::rollmean(cv_states$new_deaths, k=7, fill=NA, align='right') %>% round(digits = 0)
 
-# Inspect data again interactively
+# Use ggplotly to inspect smoothened new_deaths data for each state
 p2<-ggplot(cv_states, aes(x = date, y = new_deaths, color = state)) + geom_line() + geom_point(size = .5, alpha = 0.5)
-#ggplotly(p2)
+ggplotly(p2)
 
 p2=NULL
 ```
@@ -216,13 +214,15 @@ cv_states_today = subset(cv_states, date==max(cv_states$date))
   - Add hoverinfo specifying the state name, cases per 100k, and deaths per 100k, similar to how we did this in the lecture notes
   - Add layout information to title the chart and the axes
   - Enable `hovermode = "compare"`
+  
+  
 
 ```{r}
 # pop_density vs. cases
 cv_states_today %>% 
   plot_ly(x = ~pop_density, y = ~cases, 
           type = 'scatter', mode = 'markers', color = ~state,
-          size = ~population, sizes = c(5, 70), marker = list(sizemode='diameter', opacity=0.5))
+          size = ~population, sizes = c(5, 25), marker = list(sizemode='diameter', opacity=0.5))
 
 # filter out "District of Columbia"
 cv_states_today_filter <- cv_states_today %>% filter(state!="District of Columbia")
@@ -231,22 +231,24 @@ cv_states_today_filter <- cv_states_today %>% filter(state!="District of Columbi
 cv_states_today_filter %>% 
   plot_ly(x = ~pop_density, y = ~cases, 
           type = 'scatter', mode = 'markers', color = ~state,
-          size = ~population, sizes = c(5, 70), marker = list(sizemode='diameter', opacity=0.5))
+          size = ~population, sizes = c(5, 25), marker = list(sizemode='diameter', opacity=0.5))
 
 # pop_density vs. deathsper100k
 cv_states_today_filter %>% 
   plot_ly(x = ~pop_density, y = ~deathsper100k,
           type = 'scatter', mode = 'markers', color = ~state,
-          size = ~population, sizes = c(5, 70), marker = list(sizemode='diameter', opacity=0.5))
+          size = ~population, sizes = c(5, 25), marker = list(sizemode='diameter', opacity=0.5))
 
 # Adding hoverinfo
 cv_states_today_filter %>% 
   plot_ly(x = ~pop_density, y = ~deathsper100k,
           type = 'scatter', mode = 'markers', color = ~state,
-          size = ~population, sizes = c(5, 70), marker = list(sizemode='diameter', opacity=0.5),
+          size = ~population, sizes = c(5, 25), marker = list(sizemode='diameter', opacity=0.5),
           hoverinfo = 'text',
-          text = ~paste( paste(state, ":", sep=""), paste(" Cases per 100k: ", per100k, sep="") , 
-                         paste(" Deaths per 100k: ", deathsper100k, sep=""), sep = "<br>")) %>%
+          text = ~paste( paste(state, ":", sep=""), 
+                         paste(" Cases per 100k: ", per100k, sep=""), 
+                         paste(" Deaths per 100k: ", deathsper100k, sep=""), 
+                         sep = "<br>")) %>%
   layout(title = "Population-normalized COVID-19 deaths (per 100k) vs. population density for US states",
                   yaxis = list(title = "Deaths per 100k"), xaxis = list(title = "Population Density"),
          hovermode = "compare")
@@ -254,16 +256,17 @@ cv_states_today_filter %>%
 
 ### 7. Explore scatterplot trend interactively using `ggplotly()` and `geom_smooth()`
 
-- For `pop_density` vs. `newdeathsper100k` create a chart with the same variables using `gglot_ly()`
+- Use `ggplotly` to explore `pop_density` vs. `newdeathsper100k`
 - Explore the pattern between $x$ and $y$ using `geom_smooth()`
   - Explain what you see. Do you think `pop_density` is a correlate of `newdeathsper100k`?
 
 ```{r}
-### FINISH CODE HERE
-p <- ggplot(cv_states_today_filter, aes(x=pop_density, y=deathsper100k, size=population)) + geom_point() + geom_smooth()
+# 
+p <- ggplot(cv_states_today_filter, aes(x=pop_density, y=newdeathsper100k, size=population)) + geom_point() + geom_smooth()
 ggplotly(p)
 ```
 
+There does not appear to be a strong correlation between population density and new deaths, at least when looking at the most recent day's worth of data.
 
 ### 8. Multiple line chart
 
@@ -277,7 +280,6 @@ ggplotly(p)
 # Line chart for naive_CFR for all states over time using `plot_ly()`
 plot_ly(cv_states, x = ~date, y = ~naive_CFR, color = ~state, type = "scatter", mode = "lines")
 
-### FINISH CODE HERE
 # Line chart for Florida showing new_cases and new_deaths together
 cv_states %>% filter(state=="Florida") %>% plot_ly(x = ~date, y = ~new_cases, type = "scatter", mode = "lines") %>% add_trace(x = ~date, y = ~new_deaths, type = "scatter", mode = "lines") 
 ```
@@ -286,7 +288,7 @@ cv_states %>% filter(state=="Florida") %>% plot_ly(x = ~date, y = ~new_cases, ty
 ### 9. Heatmaps
 
 Create a heatmap to visualize `new_cases` for each state on each date greater than June 1st, 2021
-- Start by mapping selected features in the dataframe into a matrix using the **tidyr** package function `pivot_wider()`, naming the rows and columns, as done in the lecture notes
+- Start by mapping selected features in the dataframe into a matrix using the **tidyr** package function `pivot_wider()`, naming the rows and columns.
 - Use `plot_ly()` to create a heatmap out of this matrix. Which states stand out?
 - Repeat with `newper100k` variable. Now which states stand out? 
 - Create a second heatmap in which the pattern of `new_cases` for each state over time becomes more clear by filtering to only look at dates every two weeks 
@@ -319,9 +321,9 @@ plot_ly(x=colnames(cv_states_mat2), y=rownames(cv_states_mat2),
              showscale=T)
 
 # Create a second heatmap after filtering to only include dates every other week
-filter_dates <- seq(as.Date("2021-06-15"), as.Date("2021-11-01"), by="2 weeks")
+filter_dates <- seq(as.Date("2021-06-15"), as.Date("2021-11-01"), by="2 weeks") # a list of the dates of interest
 cv_states_mat <- cv_states %>% select(state, date, newper100k) %>% filter(date %in% filter_dates)
-cv_states_mat2 <- as.data.frame(pivot_wider(cv_states_mat, names_from = state, values_from = newper100k)) #newper100k, wrong?
+cv_states_mat2 <- as.data.frame(pivot_wider(cv_states_mat, names_from = state, values_from = newper100k))
 rownames(cv_states_mat2) <- cv_states_mat2$date
 cv_states_mat2$date <- NULL
 cv_states_mat2 <- as.matrix(cv_states_mat2)
@@ -344,7 +346,7 @@ plot_ly(x=colnames(cv_states_mat2), y=rownames(cv_states_mat2),
 ### For specified date
 pick.date = "2021-10-15"
 
-# Extract the data for each state by its abbreviation
+# Extract relevant data for each state, clean up variable names
 cv_per100 <- cv_states %>% filter(date==pick.date) %>% select(state, abb, newper100k, cases, deaths) # select data
 cv_per100$state_name <- cv_per100$state
 cv_per100$state <- cv_per100$abb
@@ -396,9 +398,6 @@ set_map_details <- list(
   lakecolor = toRGB('white')
 )
 
-# Make sure both maps are on the same color scale
-shadeLimit <- 125
-
 # Create the map
 fig <- plot_geo(cv_per100, locationmode = 'USA-states') %>% 
   add_trace(
@@ -413,5 +412,10 @@ fig <- fig %>% layout(
 fig_Today <- fig
 
 ### Plot together 
-subplot(fig_pick.date, fig_Today, nrows = 2, margin = .05)
+subplot(
+  fig_pick.date,
+  fig_Today, 
+  nrows = 2, margin = .05)
 ```
+
+
