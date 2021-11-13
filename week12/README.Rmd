@@ -171,7 +171,7 @@ cv_states$new_deaths = zoo::rollmean(cv_states$new_deaths, k=7, fill=NA, align='
 
 # Use ggplotly to inspect smoothened new_deaths data for each state
 p2<-ggplot(cv_states, aes(x = date, y = new_deaths, color = state)) + geom_line() + geom_point(size = .5, alpha = 0.5)
-ggplotly(p2)
+#ggplotly(p2)
 
 p2=NULL
 ```
