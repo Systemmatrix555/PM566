@@ -3,7 +3,7 @@ title: "PM 566 Week 12 Lab"
 author: "Chris Hanson"
 date: "11/12/2021"
 output: 
-  github_document: default
+  html_document: default
 always_allow_html: true
 ---
 
@@ -22,6 +22,7 @@ opts_chunk$set(
   echo = TRUE,
   cache=FALSE,
   include=TRUE,
+  clean = TRUE,
   fig.width = 7, 
   fig.align = 'center',
   fig.asp = 0.618,
