@@ -4,10 +4,11 @@ author: "Chris Hanson"
 date: "11/12/2021"
 output: 
   html_document: default
+  github_document: default
 always_allow_html: true
 ---
 
-**See my lab output** [**here**](https://github.com/ristopherCh/PM566/blob/main/week12/README.html)
+**See my lab output** [**here**](https://ghcdn.rawgit.org/ristopherCh/PM566/main/week12/README.html)
 
 ```{r setup, message=FALSE, echo=FALSE, warning=FALSE}
 library(data.table)
