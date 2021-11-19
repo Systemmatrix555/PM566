@@ -80,9 +80,9 @@ microbenchmark::microbenchmark(
 ```
 
     ## Unit: relative
-    ##          expr      min      lq     mean   median       uq       max neval
-    ##     fun1(dat) 4.162281 5.50324 4.452719 5.681435 5.747942 0.2883593   100
-    ##  fun1alt(dat) 1.000000 1.00000 1.000000 1.000000 1.000000 1.0000000   100
+    ##          expr      min       lq     mean   median       uq       max neval
+    ##     fun1(dat) 4.082589 5.388403 4.279201 5.488147 5.563559 0.2628596   100
+    ##  fun1alt(dat) 1.000000 1.000000 1.000000 1.000000 1.000000 1.0000000   100
 
 ``` r
 # Test the second original function against the rewritten function
@@ -93,9 +93,9 @@ microbenchmark::microbenchmark(
 ```
 
     ## Unit: relative
-    ##          expr      min      lq     mean   median       uq      max neval
-    ##     fun2(dat) 5.576668 4.28648 3.823385 4.237494 4.082273 1.336654   100
-    ##  fun2alt(dat) 1.000000 1.00000 1.000000 1.000000 1.000000 1.000000   100
+    ##          expr      min       lq     mean   median       uq      max neval
+    ##     fun2(dat) 5.688457 4.275161 3.845108 4.256276 4.110388 1.326351   100
+    ##  fun2alt(dat) 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000   100
 
 ## Problem 2: Make things run faster with parallel computing
 
@@ -134,7 +134,7 @@ system.time({
     ## [1] 3.14124
 
     ##    user  system elapsed 
-    ##    1.44    0.00    1.44
+    ##    1.42    0.00    1.43
 
 **Rewrite the previous code using parLapply() to make it run faster.
 Make sure you set the seed using clusterSetRNGStream():**
@@ -161,7 +161,7 @@ system.time({
     ## [1] 3.141584
 
     ##    user  system elapsed 
-    ##    0.00    0.02    0.72
+    ##    0.00    0.01    0.75
 
 # SQL
 
