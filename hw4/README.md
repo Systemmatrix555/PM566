@@ -15,6 +15,8 @@ library(dplyr)
 
 *Original:*
 
+This function adds up all values of each row.
+
 ``` r
 # Total row sums
 fun1 <- function(mat) {
@@ -37,6 +39,9 @@ fun1alt <- function(mat) {
 ```
 
 *Original:*
+
+This function creates a matrix of the same size as the original, but
+each value is the cumulative of each row across the row.
 
 ``` r
 # Cumulative sum by row
@@ -75,9 +80,9 @@ microbenchmark::microbenchmark(
 ```
 
     ## Unit: relative
-    ##          expr      min       lq     mean   median      uq       max neval
-    ##     fun1(dat) 4.124183 5.372043 4.343936 5.389831 5.59728 0.2838694   100
-    ##  fun1alt(dat) 1.000000 1.000000 1.000000 1.000000 1.00000 1.0000000   100
+    ##          expr      min      lq     mean   median       uq       max neval
+    ##     fun1(dat) 4.162281 5.50324 4.452719 5.681435 5.747942 0.2883593   100
+    ##  fun1alt(dat) 1.000000 1.00000 1.000000 1.000000 1.000000 1.0000000   100
 
 ``` r
 # Test the second original function against the rewritten function
@@ -88,9 +93,9 @@ microbenchmark::microbenchmark(
 ```
 
     ## Unit: relative
-    ##          expr      min       lq     mean   median       uq      max neval
-    ##     fun2(dat) 5.694833 4.284493 3.854175 4.274138 4.185042 1.287066   100
-    ##  fun2alt(dat) 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000   100
+    ##          expr      min      lq     mean   median       uq      max neval
+    ##     fun2(dat) 5.576668 4.28648 3.823385 4.237494 4.082273 1.336654   100
+    ##  fun2alt(dat) 1.000000 1.00000 1.000000 1.000000 1.000000 1.000000   100
 
 ## Problem 2: Make things run faster with parallel computing
 
@@ -117,11 +122,6 @@ sim_pi(1000) # 3.132
 **In order to get accurate estimates, we can run this function multiple
 times, with the following code:**
 
-(lapply returns a list of the same length as X, each element of which is
-the result of applying FUN to the corresponding element of X. n is an
-optional argument to FUN. this runs sim\_pi 4000 times, each time with n
-= 10,000. unlist just turns this from a list to a vector)
-
 ``` r
 # This runs the simulation a 4,000 times, each with 10,000 points
 set.seed(1231)
@@ -134,7 +134,7 @@ system.time({
     ## [1] 3.14124
 
     ##    user  system elapsed 
-    ##    1.44    0.00    1.43
+    ##    1.44    0.00    1.44
 
 **Rewrite the previous code using parLapply() to make it run faster.
 Make sure you set the seed using clusterSetRNGStream():**
@@ -161,7 +161,7 @@ system.time({
     ## [1] 3.141584
 
     ##    user  system elapsed 
-    ##    0.00    0.02    0.77
+    ##    0.00    0.02    0.72
 
 # SQL
 
@@ -183,11 +183,7 @@ category <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/
 dbWriteTable(con, "film", film)
 dbWriteTable(con, "film_category", film_category)
 dbWriteTable(con, "category", category)
-
-dbListTables(con)
 ```
-
-    ## [1] "category"      "film"          "film_category"
 
 ## Question 1: How many movies are there available in each rating category?
 
@@ -196,8 +192,6 @@ SELECT rating as 'Rating', COUNT(*) AS '# of films'
 FROM film
 GROUP BY rating
 ```
-
-<div class="knitsql-table">
 
 | Rating | \# of films |
 |:-------|------------:|
@@ -209,58 +203,48 @@ GROUP BY rating
 
 5 records
 
-</div>
-
 ## Question 2: What is the average replacement cost and rental rate for each rating category?
 
 ``` sql
-SELECT f.rating AS 'Rating', AVG(f.rental_rate) AS 'Avg Rental Rate', AVG(f.replacement_cost) AS 'Avg Replacement Cost'
+SELECT f.rating AS 'Rating', AVG(f.replacement_cost) AS 'Avg Replacement Cost', AVG(f.rental_rate) AS 'Avg Rental Rate'
 FROM film AS f
 GROUP BY f.rating
 ```
 
-<div class="knitsql-table">
-
-| Rating | Avg Rental Rate | Avg Replacement Cost |
-|:-------|----------------:|---------------------:|
-| G      |        2.912222 |             20.12333 |
-| NC-17  |        2.970952 |             20.13762 |
-| PG     |        3.051856 |             18.95907 |
-| PG-13  |        3.034843 |             20.40256 |
-| R      |        2.938718 |             20.23103 |
+| Rating | Avg Replacement Cost | Avg Rental Rate |
+|:-------|---------------------:|----------------:|
+| G      |             20.12333 |        2.912222 |
+| NC-17  |             20.13762 |        2.970952 |
+| PG     |             18.95907 |        3.051856 |
+| PG-13  |             20.40256 |        3.034843 |
+| R      |             20.23103 |        2.938718 |
 
 5 records
-
-</div>
 
 ## Question 3: Find how many films there are within each category ID:
 
 ``` sql
-SELECT COUNT(*) AS 'Count', fc.category_id as 'Category ID'
+SELECT fc.category_id as 'Category ID', COUNT(*) AS 'Count'
 FROM film AS f
 INNER JOIN film_category AS fc
 ON f.film_id = fc.film_id
 GROUP BY fc.category_id
 ```
 
-<div class="knitsql-table">
-
-| Count | Category ID |
-|------:|------------:|
-|    64 |           1 |
-|    66 |           2 |
-|    60 |           3 |
-|    57 |           4 |
-|    58 |           5 |
-|    68 |           6 |
-|    62 |           7 |
-|    69 |           8 |
-|    73 |           9 |
-|    61 |          10 |
+| Category ID | Count |
+|:------------|------:|
+| 1           |    64 |
+| 2           |    66 |
+| 3           |    60 |
+| 4           |    57 |
+| 5           |    58 |
+| 6           |    68 |
+| 7           |    62 |
+| 8           |    69 |
+| 9           |    73 |
+| 10          |    61 |
 
 Displaying records 1 - 10
-
-</div>
 
 ## Question 4: Incorporate the ‘category’ table into the previous answer to find the name of the most popular cagetory:
 
@@ -277,8 +261,6 @@ GROUP BY `Category Name`
 ORDER BY `Count` DESC
 ```
 
-<div class="knitsql-table">
-
 | Count | Category ID | Category Name |
 |------:|------------:|:--------------|
 |    74 |          15 | Sports        |
@@ -294,7 +276,7 @@ ORDER BY `Count` DESC
 
 Displaying records 1 - 10
 
-</div>
+The most popular category is Sports.
 
 ### Cleanup
 

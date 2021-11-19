@@ -1,0 +1,217 @@
+---
+title: "PM 566 HW 4"
+author: "Chris Hanson"
+date: "11/19/2021"
+output: 
+  html_document: default
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE, message = FALSE)
+```
+
+```{r}
+library(dplyr)
+```
+
+
+# HPC
+
+## Problem 1: Make sure your code is nice
+
+**Rewrite the following R functions to make them faster.**
+
+*Original:*
+
+This function adds up all values of each row.
+
+```{r}
+# Total row sums
+fun1 <- function(mat) {
+  n <- nrow(mat)
+  ans <- double(n) 
+  for (i in 1:n) {
+    ans[i] <- sum(mat[i, ])
+  }
+  ans
+}
+```
+
+*Rewrite:*
+
+```{r}
+fun1alt <- function(mat) {
+  ans <- rowSums(mat)
+  ans
+}
+```
+
+*Original:*
+
+This function creates a matrix of the same size as the original, but each value is the cumulative of each row across the row.
+
+```{r}
+# Cumulative sum by row
+fun2 <- function(mat) {
+  n <- nrow(mat)
+  k <- ncol(mat)
+  ans <- mat
+  for (i in 1:n) {
+    for (j in 2:k) {
+      ans[i,j] <- mat[i, j] + ans[i, j - 1]
+    }
+  }
+  ans
+}
+```
+
+*Rewrite:*
+
+```{r}
+fun2alt <- function(mat) {
+  ans <- t(apply(mat, 1, cumsum))
+  ans
+}
+```
+
+```{r}
+# Make a matrix to test and compare the original and rewritten functions
+set.seed(2315)
+dat <- matrix(rnorm(200 * 100), nrow = 200)
+
+# Test the first original function against the rewritten function
+microbenchmark::microbenchmark(
+  fun1(dat),
+  fun1alt(dat), unit = "relative", check = "equivalent"
+)
+
+# Test the second original function against the rewritten function
+microbenchmark::microbenchmark(
+  fun2(dat),
+  fun2alt(dat), unit = "relative", check = "equivalent"
+)
+```
+
+## Problem 2: Make things run faster with parallel computing
+
+**The following function allows simulating PI (3.14)**
+
+(runif generates uniform random numbers between 0 and 1. we generate 2 of these, square them, and add them together. if this is less than 1, we get a 1. if not, we get a 0. we take the mean of 2000 of these and multiply by 4, and this approximates pi, much to my disbelief)
+
+```{r}
+sim_pi <- function(n = 1000, i = NULL) {
+  p <- matrix(runif(n*2), ncol = 2)
+  mean(rowSums(p^2) < 1) * 4
+}
+
+# Here is an example of the run
+set.seed(156)
+sim_pi(1000) # 3.132
+```
+
+**In order to get accurate estimates, we can run this function multiple times, with the following code:**
+
+```{r}
+# This runs the simulation a 4,000 times, each with 10,000 points
+set.seed(1231)
+system.time({
+  ans <- unlist(lapply(1:4000, sim_pi, n = 10000))
+  print(mean(ans))
+})
+```
+
+**Rewrite the previous code using parLapply() to make it run faster. Make sure you set the seed using clusterSetRNGStream():**
+
+```{r}
+library(parallel)
+system.time({
+  
+  cl <- makePSOCKcluster(5L)
+  
+  clusterSetRNGStream(cl, 1231)
+  
+  clusterExport(cl, c("sim_pi"), envir = environment())
+  
+  ans <- unlist(parLapply(cl = cl, 1:4000, sim_pi, n = 10000))
+  print(mean(ans))
+  
+  stopCluster(cl)
+  
+  ans
+})
+```
+
+# SQL
+
+**Set up a temporary database by running the following chunk:**
+
+```{r}
+library(RSQLite)
+library(DBI)
+
+# Initialize a temporary in memory database
+con <- dbConnect(SQLite(), ":memory:")
+
+# Download tables
+film <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/film.csv")
+film_category <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/film_category.csv")
+category <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/category.csv")
+
+# Copy data.frames to database
+dbWriteTable(con, "film", film)
+dbWriteTable(con, "film_category", film_category)
+dbWriteTable(con, "category", category)
+```
+
+## Question 1: How many movies are there available in each rating category?
+
+```{sql, connection = con}
+SELECT rating as 'Rating', COUNT(*) AS '# of films'
+FROM film
+GROUP BY rating
+```
+
+## Question 2: What is the average replacement cost and rental rate for each rating category?
+
+```{sql, connection = con}
+SELECT f.rating AS 'Rating', AVG(f.replacement_cost) AS 'Avg Replacement Cost', AVG(f.rental_rate) AS 'Avg Rental Rate'
+FROM film AS f
+GROUP BY f.rating
+```
+
+## Question 3: Find how many films there are within each category ID:
+
+```{sql, connection = con}
+SELECT fc.category_id as 'Category ID', COUNT(*) AS 'Count'
+FROM film AS f
+INNER JOIN film_category AS fc
+ON f.film_id = fc.film_id
+GROUP BY fc.category_id
+```
+
+## Question 4: Incorporate the 'category' table into the previous answer to find the name of the most popular cagetory:
+
+```{sql, connection = con}
+SELECT COUNT(*) as 'Count', a.category_id as 'Category ID', a.name AS 'Category Name'
+FROM 
+(SELECT *
+FROM film_category AS fc
+LEFT JOIN category as c
+ON fc.category_id = c.category_id) AS a
+LEFT JOIN film as f
+ON a.film_id = f.film_id
+GROUP BY `Category Name`
+ORDER BY `Count` DESC
+```
+
+The most popular category is Sports.
+
+### Cleanup
+
+**Run the following chunk to disconnect from the connection.**
+
+```{r cleanup}
+# clean up
+dbDisconnect(con)
+```
