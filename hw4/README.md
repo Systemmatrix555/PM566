@@ -81,7 +81,7 @@ microbenchmark::microbenchmark(
 
     ## Unit: relative
     ##          expr      min       lq     mean   median       uq       max neval
-    ##     fun1(dat) 4.082589 5.388403 4.279201 5.488147 5.563559 0.2628596   100
+    ##     fun1(dat) 4.217778 5.360262 4.379355 5.448498 5.724501 0.2949912   100
     ##  fun1alt(dat) 1.000000 1.000000 1.000000 1.000000 1.000000 1.0000000   100
 
 ``` r
@@ -93,9 +93,9 @@ microbenchmark::microbenchmark(
 ```
 
     ## Unit: relative
-    ##          expr      min       lq     mean   median       uq      max neval
-    ##     fun2(dat) 5.688457 4.275161 3.845108 4.256276 4.110388 1.326351   100
-    ##  fun2alt(dat) 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000   100
+    ##          expr      min       lq     mean  median       uq      max neval
+    ##     fun2(dat) 5.814949 4.305575 3.831038 4.29666 4.134261 1.301973   100
+    ##  fun2alt(dat) 1.000000 1.000000 1.000000 1.00000 1.000000 1.000000   100
 
 ## Problem 2: Make things run faster with parallel computing
 
@@ -161,7 +161,7 @@ system.time({
     ## [1] 3.141584
 
     ##    user  system elapsed 
-    ##    0.00    0.01    0.75
+    ##    0.00    0.02    0.70
 
 # SQL
 

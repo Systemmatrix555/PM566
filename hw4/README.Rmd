@@ -18,7 +18,7 @@ library(dplyr)
 
 # HPC 
 
-## Problem 1: Make sure your code is nice
+## Problem 1: Make sure your code is nice 
 
 **Rewrite the following R functions to make them faster.**
 

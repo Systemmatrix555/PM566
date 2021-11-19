@@ -223,9 +223,9 @@ microbenchmark::microbenchmark(
   fun1alt(dat), unit = &quot;relative&quot;, check = &quot;equivalent&quot;
 )</code></pre>
 <pre><code>## Unit: relative
-##          expr      min       lq     mean   median       uq       max neval
-##     fun1(dat) 4.187082 5.313319 4.329142 5.379015 5.560847 0.3042046   100
-##  fun1alt(dat) 1.000000 1.000000 1.000000 1.000000 1.000000 1.0000000   100</code></pre>
+##          expr      min       lq     mean  median       uq      max neval
+##     fun1(dat) 4.242291 5.374865 4.299968 5.44765 5.632739 0.262448   100
+##  fun1alt(dat) 1.000000 1.000000 1.000000 1.00000 1.000000 1.000000   100</code></pre>
 <pre class="r"><code># Test the second original function against the rewritten function
 microbenchmark::microbenchmark(
   fun2(dat),
@@ -233,7 +233,7 @@ microbenchmark::microbenchmark(
 )</code></pre>
 <pre><code>## Unit: relative
 ##          expr      min       lq     mean   median       uq       max neval
-##     fun2(dat) 5.721723 4.334108 3.449557 4.241036 4.087259 0.4002207   100
+##     fun2(dat) 5.769717 4.295662 3.471585 4.249291 4.135206 0.4247066   100
 ##  fun2alt(dat) 1.000000 1.000000 1.000000 1.000000 1.000000 1.0000000   100</code></pre>
 </div>
 <div id="problem-2-make-things-run-faster-with-parallel-computing" class="section level2">
@@ -278,7 +278,7 @@ system.time({
 })</code></pre>
 <pre><code>## [1] 3.141584</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.04    0.02    0.73</code></pre>
+##    0.00    0.00    0.72</code></pre>
 </div>
 </div>
 <div id="sql" class="section level1">
